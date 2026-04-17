@@ -10,6 +10,7 @@ func main() {
 	base := flag.String("base", "", "compare current branch vs this ref (e.g. main). default: uncommitted changes vs HEAD")
 	staged := flag.Bool("staged", false, "review only staged changes (git diff --cached)")
 	theme := flag.String("theme", "", "chroma syntax theme (e.g. monokai, dracula, nord). use 'list' to see all")
+	noSplash := flag.Bool("no-splash", false, "skip the boot splash animation")
 	flag.Parse()
 
 	if *theme == "list" {
@@ -58,7 +59,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := Run(files, state); err != nil {
+	if err := Run(files, state, !*noSplash); err != nil {
 		fmt.Fprintln(os.Stderr, "rizz:", err)
 		os.Exit(1)
 	}

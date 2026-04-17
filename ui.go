@@ -44,13 +44,17 @@ type model struct {
 	cmdError    string // feedback message shown after a command runs
 	showCommit  bool   // commit message suggestions overlay
 
-	rizzBuffer      string // buffers recent r/i/z keystrokes for the easter egg
-	confettiFrames  int    // >0 while the confetti overlay is animating
+	rizzBuffer     string // buffers recent r/i/z keystrokes for the easter egg
+	confettiFrames int    // >0 while the confetti overlay is animating
+	splashFrames   int    // >0 while the boot splash is visible
 }
 
-func Run(files []FileDiff, state *State) error {
+func Run(files []FileDiff, state *State, showSplash bool) error {
 	m := &model{files: files, state: state}
 	m.recomputeVisible()
+	if showSplash {
+		m.splashFrames = splashTotalFrames
+	}
 	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
 	_, err := p.Run()
 	return err
@@ -76,7 +80,12 @@ func (m *model) currentFile() *FileDiff {
 	return &m.files[m.visible[m.cursor]]
 }
 
-func (m *model) Init() tea.Cmd { return nil }
+func (m *model) Init() tea.Cmd {
+	if m.splashFrames > 0 {
+		return splashTick()
+	}
+	return nil
+}
 
 func (m *model) listWidth() int {
 	w := m.width * listWidthPercent / 100
@@ -214,11 +223,26 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
+	case splashTickMsg:
+		if m.splashFrames > 0 {
+			m.splashFrames--
+		}
+		if m.splashFrames > 0 {
+			return m, splashTick()
+		}
+		return m, nil
+
 	case tea.MouseMsg:
 		return m.handleMouse(msg)
 
 	case tea.KeyMsg:
 		key := msg.String()
+
+		// any key dismisses the splash
+		if m.splashFrames > 0 {
+			m.splashFrames = 0
+			return m, nil
+		}
 
 		// help overlay swallows most input; only allow close keys
 		if m.showHelp {
@@ -397,6 +421,9 @@ func (m *model) View() string {
 	}
 	if m.confettiFrames > 0 {
 		return renderConfetti(m.width, m.height, confettiTotalFrames-m.confettiFrames)
+	}
+	if m.splashFrames > 0 {
+		return renderSplash(m.width, m.height, splashTotalFrames-m.splashFrames)
 	}
 
 	listHeight := m.height - statusHeight - headerHeight
