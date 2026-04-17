@@ -15,9 +15,17 @@ const (
 	headerHeight  = 1
 )
 
+type focusMode int
+
+const (
+	focusList focusMode = iota
+	focusDiff
+)
+
 type model struct {
 	files    []FileDiff
 	cursor   int
+	focus    focusMode
 	state    *State
 	viewport viewport.Model
 	width    int
@@ -63,38 +71,76 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
-		switch msg.String() {
+		key := msg.String()
+
+		// keys that work regardless of which pane has focus
+		switch key {
 		case "q", "ctrl+c":
 			_ = m.state.Save()
 			return m, tea.Quit
-		case "down":
+		case "v", " ":
+			f := m.files[m.cursor]
+			m.state.ToggleViewed(f.Path, f.Hash)
+			_ = m.state.Save()
+			return m, nil
+		case "a":
+			m.state.MarkAllViewed(m.files)
+			_ = m.state.Save()
+			return m, nil
+		case "r":
+			m.state.UnmarkAll()
+			_ = m.state.Save()
+			return m, nil
+		case "n", "tab":
+			if m.cursor < len(m.files)-1 {
+				m.cursor++
+				m.refreshDiff()
+			}
+			return m, nil
+		case "p", "shift+tab":
+			if m.cursor > 0 {
+				m.cursor--
+				m.refreshDiff()
+			}
+			return m, nil
+		}
+
+		if m.focus == focusList {
+			switch key {
+			case "j", "down":
+				if m.cursor < len(m.files)-1 {
+					m.cursor++
+					m.refreshDiff()
+				}
+			case "k", "up":
+				if m.cursor > 0 {
+					m.cursor--
+					m.refreshDiff()
+				}
+			case "g", "home":
+				m.cursor = 0
+				m.refreshDiff()
+			case "G", "end":
+				m.cursor = len(m.files) - 1
+				m.refreshDiff()
+			case "enter", "l", "right":
+				m.focus = focusDiff
+			}
+			return m, nil
+		}
+
+		// focusDiff
+		switch key {
+		case "esc", "h", "left":
+			m.focus = focusList
+		case "j", "down":
 			m.viewport.LineDown(1)
-		case "up":
+		case "k", "up":
 			m.viewport.LineUp(1)
 		case "d", "pgdown":
 			m.viewport.HalfViewDown()
 		case "u", "pgup":
 			m.viewport.HalfViewUp()
-		case "j", "n", "tab":
-			if m.cursor < len(m.files)-1 {
-				m.cursor++
-				m.refreshDiff()
-			}
-		case "k", "p", "shift+tab":
-			if m.cursor > 0 {
-				m.cursor--
-				m.refreshDiff()
-			}
-		case "v", " ":
-			f := m.files[m.cursor]
-			m.state.ToggleViewed(f.Path, f.Hash)
-			_ = m.state.Save()
-		case "a":
-			m.state.MarkAllViewed(m.files)
-			_ = m.state.Save()
-		case "r":
-			m.state.UnmarkAll()
-			_ = m.state.Save()
 		case "g", "home":
 			m.viewport.GotoTop()
 		case "G", "end":
@@ -114,14 +160,20 @@ func (m *model) View() string {
 	}
 
 	listHeight := m.height - statusHeight - headerHeight
-	listContent := renderFileList(m.files, m.cursor, m.state, listPaneWidth-2, listHeight)
+	listFocused := m.focus == focusList
+	listContent := renderFileList(m.files, m.cursor, m.state, listPaneWidth-2, listHeight, listFocused)
+
+	borderColor := colorBorder
+	if !listFocused {
+		borderColor = colorMuted
+	}
 
 	listPane := lipgloss.NewStyle().
 		Width(listPaneWidth).
 		Height(listHeight).
 		BorderStyle(lipgloss.ThickBorder()).
 		BorderRight(true).
-		BorderForeground(colorBorder).
+		BorderForeground(borderColor).
 		Padding(0, 1).
 		Render(listContent)
 
@@ -154,7 +206,13 @@ func (m *model) renderStatus() string {
 		}
 	}
 	progress := styleStatusAccent.Render(fmt.Sprintf("💎 %d/%d", viewed, len(m.files)))
-	help := "j/k file · ↑↓ scroll · v view · a all · r reset · g/G top/bot · q quit"
+
+	var help string
+	if m.focus == focusList {
+		help = "j/k file · enter open · v view · a all · r reset · q quit"
+	} else {
+		help = "j/k scroll · d/u half · g/G top/bot · esc back · v view · q quit"
+	}
 	helpRendered := styleStatusBar.Render(help)
 
 	inner := m.width - 2

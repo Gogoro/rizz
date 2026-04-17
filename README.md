@@ -62,13 +62,32 @@ rizz --base v1.2.0
 
 ## keybindings
 
+`rizz` has two focus modes: the **file list** on the left, and the **diff view** on the right. Navigate the sidebar, `enter` to jump into the diff, `esc` to jump back. Same muscle memory, context-aware.
+
+**list mode** (default)
+
 | key | action |
 |---|---|
-| `j` · `k` · `n` · `p` · `tab` | switch files |
-| `↑` · `↓` | scroll the diff |
+| `j` · `k` · `↑` · `↓` | move between files |
+| `g` · `G` | first · last file |
+| `enter` · `l` · `→` | open diff view |
+
+**diff mode**
+
+| key | action |
+|---|---|
+| `j` · `k` · `↑` · `↓` | scroll the diff |
 | `d` · `u` · `pgdn` · `pgup` | half-page scroll |
-| `g` · `G` | top · bottom |
-| `v` · `space` | toggle file as viewed 💎 |
+| `g` · `G` | top · bottom of diff |
+| `esc` · `h` · `←` | back to list |
+
+**works in both modes**
+
+| key | action |
+|---|---|
+| `n` · `tab` | next file |
+| `p` · `shift+tab` | previous file |
+| `v` · `space` | toggle viewed 💎 |
 | `a` | mark all viewed |
 | `r` | reset all |
 | `q` · `ctrl+c` | quit |

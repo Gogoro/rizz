@@ -86,7 +86,7 @@ func fileIcon(path string) string {
 	return "📄"
 }
 
-func renderFileList(files []FileDiff, cursor int, state *State, width, height int) string {
+func renderFileList(files []FileDiff, cursor int, state *State, width, height int, focused bool) string {
 	// Scroll the visible window to keep cursor in view
 	start := 0
 	if cursor >= height {
@@ -123,7 +123,11 @@ func renderFileList(files []FileDiff, cursor int, state *State, width, height in
 			pathStyle = pathStyle.Foreground(colorMuted)
 		}
 		if i == cursor {
-			pathStyle = styleFilePathSelected
+			if focused {
+				pathStyle = styleFilePathSelected
+			} else {
+				pathStyle = styleFilePathSelectedDim
+			}
 		}
 
 		lines = append(lines, fmt.Sprintf("%s %s %s %s", mark, icon, pathStyle.Render(path), counts))
