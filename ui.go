@@ -210,7 +210,7 @@ func (m *model) View() string {
 
 func (m *model) renderHeader() string {
 	brand := styleHeaderBar.Render("⛓  R I Z Z  ⛓")
-	tagline := styleHeaderTagline.Render(" pure vibes ")
+	tagline := styleHeaderTagline.Render(" " + vibeTagline + " ")
 
 	used := lipgloss.Width(brand) + lipgloss.Width(tagline)
 	chainLen := m.width - used
@@ -232,7 +232,12 @@ func (m *model) renderStatus() string {
 			viewed++
 		}
 	}
-	progress := styleStatusAccent.Render(fmt.Sprintf("💎 %d/%d", viewed, len(m.files)))
+	var progress string
+	if viewed == len(m.files) && viewed > 0 {
+		progress = styleStatusAccent.Render(vibeCelebration)
+	} else {
+		progress = styleStatusAccent.Render(fmt.Sprintf("💎 %d/%d", viewed, len(m.files)))
+	}
 
 	var help string
 	if m.focus == focusList {

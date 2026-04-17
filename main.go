@@ -34,7 +34,7 @@ func main() {
 	}
 
 	if len(files) == 0 {
-		fmt.Println("rizz: no changes to review")
+		fmt.Println(renderNoDiff())
 		return
 	}
 
