@@ -65,20 +65,20 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			_ = m.state.Save()
 			return m, tea.Quit
-		case "j", "right":
+		case "down":
 			m.viewport.LineDown(1)
-		case "k", "left":
+		case "up":
 			m.viewport.LineUp(1)
 		case "d", "pgdown":
 			m.viewport.HalfViewDown()
 		case "u", "pgup":
 			m.viewport.HalfViewUp()
-		case "n", "down", "tab":
+		case "j", "n", "tab":
 			if m.cursor < len(m.files)-1 {
 				m.cursor++
 				m.refreshDiff()
 			}
-		case "p", "up", "shift+tab":
+		case "k", "p", "shift+tab":
 			if m.cursor > 0 {
 				m.cursor--
 				m.refreshDiff()
@@ -135,7 +135,7 @@ func (m *model) renderStatus() string {
 		}
 	}
 	progress := fmt.Sprintf("%d/%d viewed", viewed, len(m.files))
-	help := "↑↓/np file · ←→/jk scroll · v view · a all · r reset · g/G top/bot · q quit"
+	help := "j/k file · ↑↓ scroll · v view · a all · r reset · g/G top/bot · q quit"
 
 	inner := m.width - 2
 	gap := inner - lipgloss.Width(progress) - lipgloss.Width(help)
