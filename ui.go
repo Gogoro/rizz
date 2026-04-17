@@ -10,9 +10,13 @@ import (
 )
 
 const (
-	listPaneWidth = 36
-	statusHeight  = 1
-	headerHeight  = 1
+	statusHeight = 1
+	headerHeight = 1
+
+	listWidthMin     = 28 // enough room for a few filename chars + counts
+	listWidthMax     = 56 // don't let the sidebar dwarf the diff
+	minDiffWidth     = 40 // the diff pane always keeps at least this much
+	listWidthPercent = 28 // target fraction of total width
 )
 
 type focusMode int
@@ -42,8 +46,26 @@ func Run(files []FileDiff, state *State) error {
 
 func (m *model) Init() tea.Cmd { return nil }
 
+func (m *model) listWidth() int {
+	w := m.width * listWidthPercent / 100
+	if w < listWidthMin {
+		w = listWidthMin
+	}
+	if w > listWidthMax {
+		w = listWidthMax
+	}
+	// make sure the diff pane always has breathing room
+	if m.width-w-1 < minDiffWidth {
+		w = m.width - minDiffWidth - 1
+	}
+	if w < 1 {
+		w = 1
+	}
+	return w
+}
+
 func (m *model) diffPaneSize() (int, int) {
-	return m.width - listPaneWidth - 1, m.height - statusHeight - headerHeight
+	return m.width - m.listWidth() - 1, m.height - statusHeight - headerHeight
 }
 
 func (m *model) refreshDiff() {
@@ -165,7 +187,8 @@ func (m *model) View() string {
 
 	listHeight := m.height - statusHeight - headerHeight
 	listFocused := m.focus == focusList
-	listContent := renderFileList(m.files, m.cursor, m.state, listPaneWidth-2, listHeight, listFocused)
+	listW := m.listWidth()
+	listContent := renderFileList(m.files, m.cursor, m.state, listW-2, listHeight, listFocused)
 
 	borderColor := colorBorder
 	if !listFocused {
@@ -173,7 +196,7 @@ func (m *model) View() string {
 	}
 
 	listPane := lipgloss.NewStyle().
-		Width(listPaneWidth).
+		Width(listW).
 		Height(listHeight).
 		BorderStyle(lipgloss.ThickBorder()).
 		BorderRight(true).
