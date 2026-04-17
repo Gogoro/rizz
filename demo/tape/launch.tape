@@ -10,7 +10,7 @@ Set Width 1400
 Set Height 800
 Set Padding 20
 Set Theme "Catppuccin Mocha"
-Set TypingSpeed 40ms
+Set TypingSpeed 50ms
 Set PlaybackSpeed 1.0
 
 # setup demo repo silently
@@ -28,64 +28,38 @@ Show
 
 # the user types the command
 Type "rizz"
-Sleep 400ms
+Sleep 300ms
 Enter
 
-# splash flashes, then file list
-Sleep 2s
-
-# scroll through a couple files in the sidebar
-Type "j"
-Sleep 500ms
-Type "j"
-Sleep 500ms
-Type "j"
-Sleep 600ms
-
-# dive into the diff
-Enter
-Sleep 1s
-
-# scroll through the diff to show syntax highlighting
-Type "d"
-Sleep 600ms
-Type "d"
-Sleep 700ms
-Type "u"
-Sleep 500ms
-
-# back to the list, mark as viewed
-Escape
-Sleep 400ms
-Type "v"
-Sleep 600ms
-
-# jump to next unviewed
-Type "U"
-Sleep 700ms
-Enter
+# splash flashes by quickly, then file list
 Sleep 900ms
 
-# word-level diff moment — scroll a little
-Type "d"
-Sleep 800ms
-
-# filter
-Escape
-Sleep 300ms
-Type "/"
+# quick scroll through the sidebar
+Type "j"
 Sleep 200ms
-Type "go"
-Sleep 1s
-Escape
-Sleep 400ms
-
-# commit message suggestions — the vibey finale
-Type "m"
-Sleep 2s
-Escape
+Type "j"
+Sleep 200ms
+Type "j"
 Sleep 300ms
+
+# dive into the diff — the money shot (syntax highlight)
+Enter
+Sleep 600ms
+Type "d"
+Sleep 400ms
+Type "d"
+Sleep 500ms
+
+# back, mark viewed 💎
+Escape
+Sleep 250ms
+Type "v"
+Sleep 500ms
+
+# easter egg finale 🎉
+Type "rizz"
+Sleep 1800ms
 
 # clean exit
 Type "q"
-Sleep 500ms
+Sleep 400ms
