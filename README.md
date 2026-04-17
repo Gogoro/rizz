@@ -77,7 +77,8 @@ rizz --base v1.2.0
 | key | action |
 |---|---|
 | `j` · `k` · `↑` · `↓` | scroll the diff |
-| `d` · `u` · `pgdn` · `pgup` | half-page scroll |
+| `ctrl+d` · `ctrl+u` · `d` · `u` | half-page down · up |
+| `ctrl+f` · `ctrl+b` · `pgdn` · `pgup` | full page down · up |
 | `g` · `G` | top · bottom of diff |
 | `esc` · `h` · `←` | back to list |
 

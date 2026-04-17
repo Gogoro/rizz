@@ -137,10 +137,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.viewport.LineDown(1)
 		case "k", "up":
 			m.viewport.LineUp(1)
-		case "d", "pgdown":
+		case "d", "ctrl+d":
 			m.viewport.HalfViewDown()
-		case "u", "pgup":
+		case "u", "ctrl+u":
 			m.viewport.HalfViewUp()
+		case "ctrl+f", "pgdown":
+			m.viewport.ViewDown()
+		case "ctrl+b", "pgup":
+			m.viewport.ViewUp()
 		case "g", "home":
 			m.viewport.GotoTop()
 		case "G", "end":
@@ -211,7 +215,7 @@ func (m *model) renderStatus() string {
 	if m.focus == focusList {
 		help = "j/k file · enter open · v view · a all · r reset · q quit"
 	} else {
-		help = "j/k scroll · d/u half · g/G top/bot · esc back · v view · q quit"
+		help = "j/k scroll · ^d/^u half · ^f/^b page · g/G top/bot · esc back · q quit"
 	}
 	helpRendered := styleStatusBar.Render(help)
 
