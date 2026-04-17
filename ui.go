@@ -47,10 +47,11 @@ type model struct {
 	rizzBuffer     string // buffers recent r/i/z keystrokes for the easter egg
 	confettiFrames int    // >0 while the confetti overlay is animating
 	splashFrames   int    // >0 while the boot splash is visible
+	keyRemap       map[string]string
 }
 
-func Run(files []FileDiff, state *State, showSplash bool) error {
-	m := &model{files: files, state: state}
+func Run(files []FileDiff, state *State, showSplash bool, keyRemap map[string]string) error {
+	m := &model{files: files, state: state, keyRemap: keyRemap}
 	m.recomputeVisible()
 	if showSplash {
 		m.splashFrames = splashTotalFrames
@@ -237,6 +238,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		key := msg.String()
+		if remapped, ok := m.keyRemap[key]; ok {
+			key = remapped
+		}
 
 		// any key dismisses the splash
 		if m.splashFrames > 0 {

@@ -13,6 +13,15 @@ func main() {
 	noSplash := flag.Bool("no-splash", false, "skip the boot splash animation")
 	flag.Parse()
 
+	cfg, err := LoadConfig()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "rizz: config:", err)
+		os.Exit(1)
+	}
+	if *theme == "" && cfg.Theme != "" {
+		*theme = cfg.Theme
+	}
+
 	if *theme == "list" {
 		for _, name := range AvailableThemes() {
 			fmt.Println(name)
@@ -59,7 +68,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := Run(files, state, !*noSplash); err != nil {
+	if err := Run(files, state, !*noSplash, cfg.KeyRemap()); err != nil {
 		fmt.Fprintln(os.Stderr, "rizz:", err)
 		os.Exit(1)
 	}
