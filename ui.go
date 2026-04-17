@@ -51,7 +51,7 @@ func (m *model) refreshDiff() {
 		return
 	}
 	w, _ := m.diffPaneSize()
-	m.viewport.SetContent(renderDiff(m.files[m.cursor], w))
+	m.viewport.SetContent(renderDiff(&m.files[m.cursor], w))
 	m.viewport.GotoTop()
 }
 

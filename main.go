@@ -38,6 +38,8 @@ func main() {
 		return
 	}
 
+	files = LoadFileSources(files, *base, root)
+
 	state, err := LoadState(root)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "rizz: load state:", err)

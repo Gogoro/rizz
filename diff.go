@@ -20,6 +20,15 @@ type FileDiff struct {
 	Removed  int
 	Hunks    []Hunk
 	Hash     string // sha256 of diff content, used to invalidate "viewed" mark when file changes
+
+	// Full file contents for syntax highlighting. Populated by LoadFileSources.
+	NewContent []byte
+	OldContent []byte
+
+	// Cache of per-line ANSI-colored source. Lazily populated on first render.
+	highlightedNew []string
+	highlightedOld []string
+	highlighted    bool
 }
 
 type Hunk struct {
@@ -28,8 +37,10 @@ type Hunk struct {
 }
 
 type Line struct {
-	Kind byte // ' ', '+', '-'
-	Text string
+	Kind       byte // ' ', '+', '-'
+	Text       string
+	OldLineNum int // 1-indexed line number in the old file; 0 if not applicable
+	NewLineNum int // 1-indexed line number in the new file; 0 if not applicable
 }
 
 func ParseDiff(raw []byte) ([]FileDiff, error) {
@@ -60,6 +71,8 @@ func ParseDiff(raw []byte) ([]FileDiff, error) {
 				Header: fmt.Sprintf("@@ -%d,%d +%d,%d @@ %s",
 					h.OrigStartLine, h.OrigLines, h.NewStartLine, h.NewLines, strings.TrimSpace(string(h.Section))),
 			}
+			oldLine := int(h.OrigStartLine)
+			newLine := int(h.NewStartLine)
 			for _, raw := range strings.Split(string(h.Body), "\n") {
 				if raw == "" {
 					continue
@@ -68,13 +81,22 @@ func ParseDiff(raw []byte) ([]FileDiff, error) {
 				if len(raw) > 1 {
 					line.Text = raw[1:]
 				}
-				hunk.Lines = append(hunk.Lines, line)
 				switch line.Kind {
+				case ' ':
+					line.OldLineNum = oldLine
+					line.NewLineNum = newLine
+					oldLine++
+					newLine++
 				case '+':
+					line.NewLineNum = newLine
+					newLine++
 					file.Added++
 				case '-':
+					line.OldLineNum = oldLine
+					oldLine++
 					file.Removed++
 				}
+				hunk.Lines = append(hunk.Lines, line)
 			}
 			file.Hunks = append(file.Hunks, hunk)
 		}

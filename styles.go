@@ -24,6 +24,10 @@ var (
 
 	styleAddLine          = lipgloss.NewStyle().Foreground(colorAdd).Background(colorBgAdd)
 	styleDelLine          = lipgloss.NewStyle().Foreground(colorDel).Background(colorBgDel)
+	styleAddBg            = lipgloss.NewStyle().Background(colorBgAdd)
+	styleDelBg            = lipgloss.NewStyle().Background(colorBgDel)
+	styleAddPrefix        = lipgloss.NewStyle().Foreground(colorAdd).Background(colorBgAdd).Bold(true)
+	styleDelPrefix        = lipgloss.NewStyle().Foreground(colorDel).Background(colorBgDel).Bold(true)
 	styleCtxLine          = lipgloss.NewStyle().Foreground(colorText)
 	styleHunkHeader       = lipgloss.NewStyle().Foreground(colorGold).Bold(true)
 	styleFilePath         = lipgloss.NewStyle().Foreground(colorText)
