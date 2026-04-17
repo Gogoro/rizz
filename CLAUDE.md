@@ -48,6 +48,14 @@ If VHS isn't installed: `brew install vhs`. If it's installed but not on `$PATH`
 - Binaries land on the Releases page. `install.sh` in the repo root downloads the matching asset for the user's OS/arch.
 - Version is wired via ldflag into `internal/rizz.Version` (read by `--version`).
 
+## update flow for end users
+
+- `internal/rizz/update.go` owns the check + self-update.
+- On launch, a cached check (`~/.cache/rizz/update-check.json`, refreshed in a background goroutine at most once per 24h) is consulted. If a newer release is available and the user hasn't declined it, they're prompted.
+- `rizz --update` downloads the matching release tarball, extracts the binary, and atomically replaces the running executable via `os.Rename`.
+- `Version == "dev"` (unreleased builds) skips the check and blocks `--update`.
+- Asset naming matches GoReleaser's `name_template` — if that template changes, update `releaseAssetURL` too.
+
 ## commit messages
 
 Short, lowercase, no conventional-commit prefix. Match existing style: `add --staged flag`, `fix sidebar width scaling`, `bump chroma`.

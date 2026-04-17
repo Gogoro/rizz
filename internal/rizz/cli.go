@@ -1,9 +1,11 @@
 package rizz
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 // Version is set at build time via -ldflags "-X github.com/Gogoro/rizz/internal/rizz.Version=..."
@@ -17,10 +19,19 @@ func Main() {
 	theme := flag.String("theme", "", "chroma syntax theme (e.g. monokai, dracula, nord). use 'list' to see all")
 	noSplash := flag.Bool("no-splash", false, "skip the boot splash animation")
 	showVersion := flag.Bool("version", false, "print rizz version and exit")
+	doUpdate := flag.Bool("update", false, "download and install the latest rizz release")
 	flag.Parse()
 
 	if *showVersion {
 		fmt.Println("rizz", Version)
+		return
+	}
+
+	if *doUpdate {
+		if err := SelfUpdate(); err != nil {
+			fmt.Fprintln(os.Stderr, "rizz: update failed:", err)
+			os.Exit(1)
+		}
 		return
 	}
 
@@ -41,6 +52,11 @@ func Main() {
 	}
 	if *theme != "" {
 		SetSyntaxTheme(*theme)
+	}
+
+	RefreshUpdateCacheBackground()
+	if pending := PendingUpdateVersion(); pending != "" {
+		promptForUpgrade(pending)
 	}
 
 	if !IsGitRepo() {
@@ -84,4 +100,32 @@ func Main() {
 		fmt.Fprintln(os.Stderr, "rizz:", err)
 		os.Exit(1)
 	}
+}
+
+// promptForUpgrade asks the user if they want to install a newer version of
+// rizz. On yes: runs self-update and exits so the next invocation picks up the
+// new binary. On no: remembers the skipped version so we don't re-prompt for it.
+func promptForUpgrade(newVersion string) {
+	fmt.Printf("\n  \u26d3  rizz %s is available (you have v%s)\n", newVersion, Version)
+	fmt.Print("  upgrade now? [Y/n] ")
+
+	reader := bufio.NewReader(os.Stdin)
+	answer, _ := reader.ReadString('\n')
+	answer = strings.ToLower(strings.TrimSpace(answer))
+
+	if answer == "n" || answer == "no" {
+		RememberSkippedVersion(newVersion)
+		fmt.Println()
+		return
+	}
+
+	fmt.Println()
+	if err := SelfUpdate(); err != nil {
+		fmt.Fprintln(os.Stderr, "rizz: update failed:", err)
+		fmt.Println("continuing with current version...")
+		fmt.Println()
+		return
+	}
+	fmt.Println("\nrun rizz again to use the new version.")
+	os.Exit(0)
 }

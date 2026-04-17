@@ -61,6 +61,17 @@ mv rizz /usr/local/bin/
 
 Requires Go 1.22+ for source / `go install`.
 
+### updating
+
+`rizz` checks GitHub for a new release at most once a day. When one's available, you'll get a prompt on launch:
+
+```
+⛓  rizz v0.2.0 is available (you have v0.1.0)
+upgrade now? [Y/n]
+```
+
+Say yes and it downloads + replaces the binary in place. Say no and it won't nag you again until the *next* release. You can also trigger an update anytime with `rizz --update`.
+
 ## try it
 
 A demo script spins up a throwaway git repo with varied, realistic changes (Go, CSS, YAML, Markdown, tests, new files, deleted files) so you can see rizz actually working:
