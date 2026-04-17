@@ -93,6 +93,71 @@ func (m *model) diffPaneSize() (int, int) {
 	return m.width - m.listWidth() - 1, m.height - statusHeight - headerHeight
 }
 
+func (m *model) handleMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
+	if m.showHelp || m.filterInput {
+		return m, nil
+	}
+
+	listW := m.listWidth()
+	inSidebar := msg.X < listW
+	inMainArea := msg.Y >= headerHeight && msg.Y < m.height-statusHeight
+
+	switch msg.Button {
+	case tea.MouseButtonWheelUp:
+		if inSidebar {
+			if m.cursor > 0 {
+				m.cursor--
+				m.refreshDiff()
+			}
+		} else {
+			m.viewport.LineUp(3)
+		}
+		return m, nil
+	case tea.MouseButtonWheelDown:
+		if inSidebar {
+			if m.cursor < len(m.visible)-1 {
+				m.cursor++
+				m.refreshDiff()
+			}
+		} else {
+			m.viewport.LineDown(3)
+		}
+		return m, nil
+	case tea.MouseButtonLeft:
+		if msg.Action != tea.MouseActionPress {
+			return m, nil
+		}
+		if !inMainArea {
+			return m, nil
+		}
+		if inSidebar {
+			listHeight := m.height - statusHeight - headerHeight
+			if m.filterInput || m.filter != "" {
+				listHeight--
+			}
+			start := 0
+			if m.cursor >= listHeight {
+				start = m.cursor - listHeight + 1
+			}
+			row := msg.Y - headerHeight
+			if row < 0 || row >= listHeight {
+				return m, nil
+			}
+			idx := start + row
+			if idx >= len(m.visible) {
+				return m, nil
+			}
+			m.cursor = idx
+			m.focus = focusDiff
+			m.refreshDiff()
+		} else {
+			m.focus = focusDiff
+		}
+		return m, nil
+	}
+	return m, nil
+}
+
 // nextUnviewed walks the visible file list forward from the cursor, wrapping once,
 // and returns the index of the next unviewed file.
 func (m *model) nextUnviewed() (int, bool) {
@@ -132,6 +197,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.refreshDiff()
 		return m, nil
+
+	case tea.MouseMsg:
+		return m.handleMouse(msg)
 
 	case tea.KeyMsg:
 		key := msg.String()
