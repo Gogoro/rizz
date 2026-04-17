@@ -35,6 +35,7 @@ type model struct {
 	width    int
 	height   int
 	ready    bool
+	showHelp bool
 }
 
 func Run(files []FileDiff, state *State) error {
@@ -95,8 +96,23 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		key := msg.String()
 
+		// help overlay swallows most input; only allow close keys
+		if m.showHelp {
+			switch key {
+			case "?", "esc", "q":
+				m.showHelp = false
+			case "ctrl+c":
+				_ = m.state.Save()
+				return m, tea.Quit
+			}
+			return m, nil
+		}
+
 		// keys that work regardless of which pane has focus
 		switch key {
+		case "?":
+			m.showHelp = true
+			return m, nil
 		case "q", "ctrl+c":
 			_ = m.state.Save()
 			return m, tea.Quit
@@ -185,6 +201,10 @@ func (m *model) View() string {
 		return "loading..."
 	}
 
+	if m.showHelp {
+		return renderHelp(m.width, m.height)
+	}
+
 	listHeight := m.height - statusHeight - headerHeight
 	listFocused := m.focus == focusList
 	listW := m.listWidth()
@@ -241,9 +261,9 @@ func (m *model) renderStatus() string {
 
 	var help string
 	if m.focus == focusList {
-		help = "j/k file · enter open · v view · a all · r reset · q quit"
+		help = "j/k file · enter open · v view · ? help · q quit"
 	} else {
-		help = "j/k scroll · ^d/^u half · ^f/^b page · g/G top/bot · esc back · q quit"
+		help = "j/k scroll · ^d/^u half · esc back · ? help · q quit"
 	}
 	helpRendered := styleStatusBar.Render(help)
 
