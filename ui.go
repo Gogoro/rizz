@@ -39,6 +39,9 @@ type model struct {
 	showHelp    bool
 	filter      string // current file path filter substring (case-insensitive)
 	filterInput bool   // true while the user is actively typing the filter
+	cmdInput    bool   // true while a vim-style : command is being typed
+	cmdBuffer   string // current command text
+	cmdError    string // feedback message shown after a command runs
 }
 
 func Run(files []FileDiff, state *State) error {
@@ -221,6 +224,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updateFilterInput(key)
 		}
 
+		// command mode — typing builds up a :command
+		if m.cmdInput {
+			return m.updateCmdInput(key)
+		}
+
+		// clear any lingering command feedback on the next real key press
+		m.cmdError = ""
+
 		// keys that work regardless of which pane has focus
 		switch key {
 		case "?":
@@ -228,6 +239,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case "/":
 			m.filterInput = true
+			return m, nil
+		case ":":
+			m.cmdInput = true
+			m.cmdBuffer = ""
 			return m, nil
 		case "q", "ctrl+c":
 			_ = m.state.Save()
@@ -405,13 +420,18 @@ func (m *model) renderStatus() string {
 		progress = styleStatusAccent.Render(fmt.Sprintf("💎 %d/%d", viewed, len(m.files)))
 	}
 
-	var help string
-	if m.focus == focusList {
-		help = "j/k file · enter open · v view · ? help · q quit"
-	} else {
-		help = "j/k scroll · ^d/^u half · esc back · ? help · q quit"
+	var helpRendered string
+	switch {
+	case m.cmdInput:
+		cmdLine := ":" + m.cmdBuffer + "▎"
+		helpRendered = lipgloss.NewStyle().Foreground(colorGold).Bold(true).Background(colorStatus).Render(cmdLine)
+	case m.cmdError != "":
+		helpRendered = lipgloss.NewStyle().Foreground(colorDel).Bold(true).Background(colorStatus).Render(m.cmdError)
+	case m.focus == focusList:
+		helpRendered = styleStatusBar.Render("j/k file · enter open · v view · ? help · q quit")
+	default:
+		helpRendered = styleStatusBar.Render("j/k scroll · ^d/^u half · esc back · ? help · q quit")
 	}
-	helpRendered := styleStatusBar.Render(help)
 
 	inner := m.width - 2
 	gap := inner - lipgloss.Width(progress) - lipgloss.Width(helpRendered)
