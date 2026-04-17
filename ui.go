@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,6 +12,7 @@ import (
 const (
 	listPaneWidth = 36
 	statusHeight  = 1
+	headerHeight  = 1
 )
 
 type model struct {
@@ -33,7 +35,7 @@ func Run(files []FileDiff, state *State) error {
 func (m *model) Init() tea.Cmd { return nil }
 
 func (m *model) diffPaneSize() (int, int) {
-	return m.width - listPaneWidth - 1, m.height - statusHeight
+	return m.width - listPaneWidth - 1, m.height - statusHeight - headerHeight
 }
 
 func (m *model) refreshDiff() {
@@ -111,20 +113,37 @@ func (m *model) View() string {
 		return "loading..."
 	}
 
-	listHeight := m.height - statusHeight
+	listHeight := m.height - statusHeight - headerHeight
 	listContent := renderFileList(m.files, m.cursor, m.state, listPaneWidth-2, listHeight)
 
 	listPane := lipgloss.NewStyle().
 		Width(listPaneWidth).
 		Height(listHeight).
-		BorderStyle(lipgloss.NormalBorder()).
+		BorderStyle(lipgloss.ThickBorder()).
 		BorderRight(true).
 		BorderForeground(colorBorder).
 		Padding(0, 1).
 		Render(listContent)
 
 	main := lipgloss.JoinHorizontal(lipgloss.Top, listPane, m.viewport.View())
-	return lipgloss.JoinVertical(lipgloss.Left, main, m.renderStatus())
+	return lipgloss.JoinVertical(lipgloss.Left, m.renderHeader(), main, m.renderStatus())
+}
+
+func (m *model) renderHeader() string {
+	brand := styleHeaderBar.Render("⛓  R I Z Z  ⛓")
+	tagline := styleHeaderTagline.Render(" pure vibes ")
+
+	used := lipgloss.Width(brand) + lipgloss.Width(tagline)
+	chainLen := m.width - used
+	if chainLen < 0 {
+		chainLen = 0
+	}
+	chain := styleHeaderChain.Render(strings.Repeat("━", chainLen))
+
+	return lipgloss.NewStyle().
+		Background(colorHeader).
+		Width(m.width).
+		Render(brand + chain + tagline)
 }
 
 func (m *model) renderStatus() string {
@@ -134,14 +153,15 @@ func (m *model) renderStatus() string {
 			viewed++
 		}
 	}
-	progress := fmt.Sprintf("%d/%d viewed", viewed, len(m.files))
+	progress := styleStatusAccent.Render(fmt.Sprintf("💎 %d/%d", viewed, len(m.files)))
 	help := "j/k file · ↑↓ scroll · v view · a all · r reset · g/G top/bot · q quit"
+	helpRendered := styleStatusBar.Render(help)
 
 	inner := m.width - 2
-	gap := inner - lipgloss.Width(progress) - lipgloss.Width(help)
+	gap := inner - lipgloss.Width(progress) - lipgloss.Width(helpRendered)
 	if gap < 1 {
 		gap = 1
 	}
-	spacer := fmt.Sprintf("%*s", gap, "")
-	return styleStatusBar.Width(m.width).Render(progress + spacer + help)
+	spacer := styleStatusBar.Render(strings.Repeat(" ", gap))
+	return lipgloss.NewStyle().Background(colorStatus).Width(m.width).Render(progress + spacer + helpRendered)
 }

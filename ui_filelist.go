@@ -21,14 +21,18 @@ func renderFileList(files []FileDiff, cursor int, state *State, width, height in
 		f := files[i]
 		viewed := state.IsViewed(f.Path, f.Hash)
 
-		mark := "[ ]"
+		// "💎" renders 2 cells wide — pad placeholder so the path column doesn't shift
+		var mark string
 		if viewed {
-			mark = styleViewedMark.Render("[✓]")
+			mark = styleViewedMark.Render("💎")
+		} else {
+			mark = styleFileCounts.Render("· ")
 		}
 
 		counts := styleFileCounts.Render(fmt.Sprintf("+%d -%d", f.Added, f.Removed))
 
-		path := truncate(f.Path, width-len(fmt.Sprintf("[ ] +%d -%d ", f.Added, f.Removed))-1)
+		// "💎 " renders 2 cells wide, counts vary — leave generous headroom
+		path := truncate(f.Path, width-len(fmt.Sprintf("+%d -%d ", f.Added, f.Removed))-3)
 		pathStyle := styleFilePath
 		if viewed {
 			pathStyle = pathStyle.Foreground(colorMuted)
