@@ -110,7 +110,7 @@ func renderFileList(files []FileDiff, cursor int, state *State, width, height in
 			mark = styleFileCounts.Render("· ")
 		}
 
-		counts := styleFileCounts.Render(fmt.Sprintf("+%d -%d", f.Added, f.Removed))
+		counts := styleCountAdd.Render(fmt.Sprintf("+%d", f.Added)) + " " + styleCountDel.Render(fmt.Sprintf("-%d", f.Removed))
 
 		icon := fileIcon(f.Path)
 

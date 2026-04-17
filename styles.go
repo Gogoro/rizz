@@ -34,6 +34,8 @@ var (
 	styleFilePathSelected    = lipgloss.NewStyle().Foreground(colorGold).Background(colorSelBg).Bold(true)
 	styleFilePathSelectedDim = lipgloss.NewStyle().Foreground(colorGoldSoft).Underline(true)
 	styleFileCounts       = lipgloss.NewStyle().Foreground(colorMuted)
+	styleCountAdd         = lipgloss.NewStyle().Foreground(colorAdd).Bold(true)
+	styleCountDel         = lipgloss.NewStyle().Foreground(colorDel).Bold(true)
 	styleViewedMark       = lipgloss.NewStyle().Foreground(colorDiamond).Bold(true)
 	styleStatusBar        = lipgloss.NewStyle().Foreground(colorGoldSoft).Background(colorStatus).Padding(0, 1)
 	styleStatusAccent     = lipgloss.NewStyle().Foreground(colorGold).Background(colorStatus).Bold(true)
