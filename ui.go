@@ -135,7 +135,7 @@ func (m *model) renderStatus() string {
 		}
 	}
 	progress := fmt.Sprintf("%d/%d viewed", viewed, len(m.files))
-	help := "↑↓ file · ←→/jk scroll · v view · a all · r reset · g/G top/bot · q quit"
+	help := "↑↓/np file · ←→/jk scroll · v view · a all · r reset · g/G top/bot · q quit"
 
 	inner := m.width - 2
 	gap := inner - lipgloss.Width(progress) - lipgloss.Width(help)
