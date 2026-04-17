@@ -38,6 +38,7 @@ func renderHelp(width, height int) string {
 				{"U", "jump to next unviewed"},
 				{"/", "filter files (esc clears)"},
 				{":", "vim-style command (:q, :help)"},
+				{"m", "commit message suggestions"},
 				{"a", "mark all viewed"},
 				{"r", "reset all"},
 				{"?", "toggle this help"},

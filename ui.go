@@ -42,6 +42,7 @@ type model struct {
 	cmdInput    bool   // true while a vim-style : command is being typed
 	cmdBuffer   string // current command text
 	cmdError    string // feedback message shown after a command runs
+	showCommit  bool   // commit message suggestions overlay
 }
 
 func Run(files []FileDiff, state *State) error {
@@ -219,6 +220,18 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
+		// commit message overlay — similar behaviour
+		if m.showCommit {
+			switch key {
+			case "m", "esc", "q":
+				m.showCommit = false
+			case "ctrl+c":
+				_ = m.state.Save()
+				return m, tea.Quit
+			}
+			return m, nil
+		}
+
 		// filter input mode — typing builds up the filter substring
 		if m.filterInput {
 			return m.updateFilterInput(key)
@@ -243,6 +256,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case ":":
 			m.cmdInput = true
 			m.cmdBuffer = ""
+			return m, nil
+		case "m":
+			m.showCommit = true
 			return m, nil
 		case "q", "ctrl+c":
 			_ = m.state.Save()
@@ -345,6 +361,9 @@ func (m *model) View() string {
 
 	if m.showHelp {
 		return renderHelp(m.width, m.height)
+	}
+	if m.showCommit {
+		return renderCommitMessages(suggestCommitMessages(m.files), m.width, m.height)
 	}
 
 	listHeight := m.height - statusHeight - headerHeight
