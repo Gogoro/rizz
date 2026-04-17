@@ -8,7 +8,6 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/status-alpha-gold?style=flat-square" alt="status: alpha"/>
   <img src="https://img.shields.io/badge/built%20with-bubble%20tea-ff69b4?style=flat-square" alt="built with bubble tea"/>
   <img src="https://img.shields.io/badge/license-MIT-brightgreen?style=flat-square" alt="license: MIT"/>
   <img src="https://img.shields.io/badge/vibes-immaculate-yellow?style=flat-square" alt="vibes: immaculate"/>
@@ -108,8 +107,6 @@ Powered by [Chroma](https://github.com/alecthomas/chroma) — ~200 languages det
 
 For isolated `-` / `+` line pairs, rizz highlights the exact changed words with a brighter background. Small renames, tweaks, and typos pop immediately.
 
-<p align="center"><img src="assets/screenshots/word-diff.png" alt="word-level diff highlighting" width="860"/></p>
-
 ### line numbers
 
 GitHub-style gutter: old line number on the left, new line number on the right, muted so they don't dominate.
@@ -118,19 +115,13 @@ GitHub-style gutter: old line number on the left, new line number on the right, 
 
 Press `/`, start typing, file list narrows in real time to path substring matches. `esc` clears. Handy when 47 files changed and you only want to review the Go ones.
 
-<p align="center"><img src="assets/screenshots/filter.png" alt="file filter" width="860"/></p>
-
 ### commit message suggestions
 
 Press `m` for a vibey commit message generator that reads your file types and operations and spits out suggestions in the logo's style (`feat: add rizz`, `fix: remove cringe code`, `style: drip check passed`, etc.).
 
-<p align="center"><img src="assets/screenshots/commit-msgs.png" alt="commit message suggestions" width="860"/></p>
-
 ### help overlay
 
 `?` anywhere — modal popup with every keybinding grouped by mode.
-
-<p align="center"><img src="assets/screenshots/help.png" alt="help overlay" width="860"/></p>
 
 ### vim-style commands
 
@@ -149,8 +140,6 @@ Click a file to open it. Scroll wheel navigates the file list in the sidebar and
 ### boot splash
 
 A little ⛓ RIZZ ⛓ flex on launch. Press any key to skip, or run with `--no-splash`.
-
-<p align="center"><img src="assets/screenshots/splash.png" alt="boot splash" width="860"/></p>
 
 ### file type flex
 
@@ -214,6 +203,9 @@ Optional. Drop a TOML file at `~/.config/rizz/config.toml`:
 # override the syntax theme
 theme = "dracula"
 
+# always skip the boot splash (same as --no-splash on every launch)
+no_splash = true
+
 # add alternate keys for any action.
 # your custom keys work *in addition to* the built-in defaults.
 [keybinds]
@@ -236,17 +228,11 @@ Run `rizz --theme list` to see all available chroma themes.
 
 ## what's NOT here (yet)
 
-- No side-by-side diff (unified only)
+- No side-by-side diff — unified only
 - No inline comments or annotations
-- No staging, committing, or any git mutation — `rizz` is strictly read-only
-- No clipboard yanking of hunks
-- No config-based keybind *replacement* — only aliases
+- `rizz` is strictly read-only — no staging, committing, or any git mutation
 
 If any of these would genuinely make your life better, open an issue.
-
-## status
-
-🚧 **alpha**. Sharp edges, missing features, opinions baked into the defaults. Works on macOS and Linux. Windows? Probably. Report back.
 
 ## credits
 

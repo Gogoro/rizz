@@ -11,6 +11,7 @@ import (
 // Config holds user-overridable settings loaded from ~/.config/rizz/config.toml.
 type Config struct {
 	Theme    string            `toml:"theme"`
+	NoSplash bool              `toml:"no_splash"`
 	Keybinds map[string]string `toml:"keybinds"`
 }
 
