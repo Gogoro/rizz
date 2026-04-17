@@ -14,8 +14,10 @@ var (
 	colorMuted  = lipgloss.Color("#7d8590")
 	colorAccent = colorGold
 	colorText   = lipgloss.Color("#c9d1d9")
-	colorBgAdd  = lipgloss.Color("#0d2819")
-	colorBgDel  = lipgloss.Color("#2d0d10")
+	colorBgAdd         = lipgloss.Color("#0d2819")
+	colorBgDel         = lipgloss.Color("#2d0d10")
+	colorBgAddIntraDiff = lipgloss.Color("#1a7f37") // brighter green for changed words on + line
+	colorBgDelIntraDiff = lipgloss.Color("#82071e") // brighter red for changed words on - line
 	colorSelBg  = lipgloss.Color("#3a2a05") // gold-tinted selection background
 	colorViewed = colorDiamond
 	colorBorder = colorGoldDeep
@@ -28,6 +30,10 @@ var (
 	styleDelBg            = lipgloss.NewStyle().Background(colorBgDel)
 	styleAddPrefix        = lipgloss.NewStyle().Foreground(colorAdd).Background(colorBgAdd).Bold(true)
 	styleDelPrefix        = lipgloss.NewStyle().Foreground(colorDel).Background(colorBgDel).Bold(true)
+	styleAddIntra         = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff")).Background(colorBgAddIntraDiff).Bold(true)
+	styleDelIntra         = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff")).Background(colorBgDelIntraDiff).Bold(true)
+	styleAddEq            = lipgloss.NewStyle().Foreground(colorText).Background(colorBgAdd)
+	styleDelEq            = lipgloss.NewStyle().Foreground(colorText).Background(colorBgDel)
 	styleCtxLine          = lipgloss.NewStyle().Foreground(colorText)
 	styleHunkHeader       = lipgloss.NewStyle().Foreground(colorGold).Bold(true)
 	styleFilePath         = lipgloss.NewStyle().Foreground(colorText)
