@@ -14,6 +14,10 @@
   <img src="https://img.shields.io/badge/vibes-immaculate-yellow?style=flat-square" alt="vibes: immaculate"/>
 </p>
 
+<p align="center">
+  <img src="assets/screenshots/hero.png" alt="rizz in action" width="880"/>
+</p>
+
 ---
 
 ## diff so clean, even prod approved it
@@ -48,23 +52,127 @@ mv rizz /usr/local/bin/   # or wherever your PATH points
 
 Requires Go 1.22+.
 
+## try it
+
+A demo script spins up a throwaway git repo with varied, realistic changes (Go, CSS, YAML, Markdown, tests, new files, deleted files) so you can see rizz actually working:
+
+```bash
+./demo/setup.sh
+cd /tmp/rizz-demo
+rizz
+```
+
 ## usage
 
 ```bash
 # review your uncommitted changes (default)
 rizz
 
+# review staged changes only
+rizz --staged
+
 # review your branch vs main (or any ref)
 rizz --base main
 rizz --base origin/develop
 rizz --base v1.2.0
+
+# swap the syntax theme
+rizz --theme dracula
+rizz --theme list        # print all available themes
+
+# skip the boot animation
+rizz --no-splash
 ```
+
+## features
+
+### two-pane navigation
+
+Sidebar on the left with every changed file. Big diff on the right. Focus flips between them: `enter` to dive into the diff, `esc` to jump back to the file list. Muscle memory stays consistent — `j/k` always means "move" in whichever pane has focus.
+
+<p align="center"><img src="assets/screenshots/list-mode.png" alt="list mode" width="860"/></p>
+
+### viewed tracking that doesn't lie
+
+Mark files with `v` (or space), track with the 💎 diamond marker. State lives in `.git/rizz-state.json` per repo — no global mess.
+
+Each viewed mark is keyed to a hash of that file's diff content. When the diff changes (you commit, you edit, anything), the mark auto-invalidates. Same behavior as GitHub's "Viewed" checkbox on PRs.
+
+Hit `U` to jump to the next unviewed file.
+
+### syntax highlighting
+
+Powered by [Chroma](https://github.com/alecthomas/chroma) — ~200 languages detected by filename. Default theme is `catppuccin-mocha`. Swap with `--theme <name>` or set `theme = "dracula"` in the config file.
+
+<p align="center"><img src="assets/screenshots/diff-mode.png" alt="diff mode with syntax highlighting" width="860"/></p>
+
+### word-level diff
+
+For isolated `-` / `+` line pairs, rizz highlights the exact changed words with a brighter background. Small renames, tweaks, and typos pop immediately.
+
+<p align="center"><img src="assets/screenshots/word-diff.png" alt="word-level diff highlighting" width="860"/></p>
+
+### line numbers
+
+GitHub-style gutter: old line number on the left, new line number on the right, muted so they don't dominate.
+
+### file filter
+
+Press `/`, start typing, file list narrows in real time to path substring matches. `esc` clears. Handy when 47 files changed and you only want to review the Go ones.
+
+<p align="center"><img src="assets/screenshots/filter.png" alt="file filter" width="860"/></p>
+
+### commit message suggestions
+
+Press `m` for a vibey commit message generator that reads your file types and operations and spits out suggestions in the logo's style (`feat: add rizz`, `fix: remove cringe code`, `style: drip check passed`, etc.).
+
+<p align="center"><img src="assets/screenshots/commit-msgs.png" alt="commit message suggestions" width="860"/></p>
+
+### help overlay
+
+`?` anywhere — modal popup with every keybinding grouped by mode.
+
+<p align="center"><img src="assets/screenshots/help.png" alt="help overlay" width="860"/></p>
+
+### vim-style commands
+
+Press `:` for a command prompt. `:q`, `:quit`, `:help`, `:a`, `:r` all work. `:w` tells you that rizz doesn't write, it only reviews.
+
+### the easter egg
+
+Type `r-i-z-z` anywhere. You'll see.
+
+<p align="center"><img src="assets/screenshots/confetti.png" alt="the easter egg" width="860"/></p>
+
+### mouse support
+
+Click a file to open it. Scroll wheel navigates the file list in the sidebar and scrolls the diff in the main pane.
+
+### boot splash
+
+A little ⛓ RIZZ ⛓ flex on launch. Press any key to skip, or run with `--no-splash`.
+
+<p align="center"><img src="assets/screenshots/splash.png" alt="boot splash" width="860"/></p>
+
+### file type flex
+
+`rizz` drops an emoji next to each file so you can skim what's changing at a glance:
+
+| ext | icon | ext | icon | ext | icon |
+|---|---|---|---|---|---|
+| `.go` | 🐹 | `.ts` | 🟦 | `.js` | 🟨 |
+| `.py` | 🐍 | `.rs` | 🦀 | `.rb` | ♦️ |
+| `.css` `.scss` | 🎨 | `.html` | 🌐 | `.md` | 📝 |
+| `.json` | 📦 | `.yaml` | 📋 | `.toml` `.ini` | ⚙️ |
+| `.sh` `.bash` | 🐚 | `.sql` | 🗄 | `Dockerfile` | 🐳 |
+| `Makefile` | 🔨 | `*_test.go` | 🧪 | images | 🖼 |
+| `.env` | 🔐 | `.lock` | 🔒 | anything else | 📄 |
 
 ## keybindings
 
-`rizz` has two focus modes: the **file list** on the left, and the **diff view** on the right. Navigate the sidebar, `enter` to jump into the diff, `esc` to jump back. Same muscle memory, context-aware.
+Two focus modes: **file list** on the left, **diff view** on the right. `enter` to open, `esc` to return.
 
-**list mode** (default)
+**list mode**
 
 | key | action |
 |---|---|
@@ -88,40 +196,53 @@ rizz --base v1.2.0
 |---|---|
 | `n` · `tab` | next file |
 | `p` · `shift+tab` | previous file |
+| `U` | jump to next unviewed |
 | `v` · `space` | toggle viewed 💎 |
 | `a` | mark all viewed |
 | `r` | reset all |
+| `/` | filter files (esc clears) |
+| `m` | commit message suggestions |
+| `:` | vim-style command |
+| `?` | help overlay |
 | `q` · `ctrl+c` | quit |
 
-## viewed tracking that doesn't lie
+Mouse: click a file in the sidebar to open it; scroll wheel navigates the sidebar or scrolls the diff depending on where you hover.
 
-Mark files as viewed and `rizz` remembers. State lives in `.git/rizz-state.json` per repo — no global mess, no stale marks across projects.
+## config file
 
-Each viewed mark is keyed to a hash of that file's diff content. When the diff changes (you commit, you edit, anything), the viewed mark auto-invalidates. Same behavior as GitHub's "Viewed" checkbox on PRs. No lies, no gaslighting yourself into thinking you already looked at that file.
+Optional. Drop a TOML file at `~/.config/rizz/config.toml`:
 
-## file type flex
+```toml
+# override the syntax theme
+theme = "dracula"
 
-`rizz` drops an emoji next to each file so you can skim what's changing at a glance. Heavy on the stylesheets? Pure Go? You'll see it before you read it.
+# add alternate keys for any action.
+# your custom keys work *in addition to* the built-in defaults.
+[keybinds]
+view-toggle    = "V"
+help           = "F1"
+next-unviewed  = "x"
+commit-msgs    = "M"
+```
 
-| ext | icon | ext | icon | ext | icon |
-|---|---|---|---|---|---|
-| `.go` | 🐹 | `.ts` | 🟦 | `.js` | 🟨 |
-| `.py` | 🐍 | `.rs` | 🦀 | `.rb` | ♦️ |
-| `.css` `.scss` | 🎨 | `.html` | 🌐 | `.md` | 📝 |
-| `.json` | 📦 | `.yaml` | 📋 | `.toml` `.ini` | ⚙️ |
-| `.sh` `.bash` | 🐚 | `.sql` | 🗄 | `Dockerfile` | 🐳 |
-| `Makefile` | 🔨 | `*_test.go` | 🧪 | images | 🖼 |
-| `.env` | 🔐 | `.lock` | 🔒 | anything else | 📄 |
+Run `rizz --theme list` to see all available chroma themes.
+
+## cli flags
+
+| flag | purpose |
+|---|---|
+| `--base <ref>` | compare current branch vs a ref (uses merge-base) |
+| `--staged` | review only staged changes |
+| `--theme <name>` | override syntax theme (use `list` to print all) |
+| `--no-splash` | skip the boot animation |
 
 ## what's NOT here (yet)
 
-This is a weekend build. On purpose:
-
 - No side-by-side diff (unified only)
-- No syntax highlighting inside the diff
 - No inline comments or annotations
 - No staging, committing, or any git mutation — `rizz` is strictly read-only
-- No config file — sensible defaults, take it or fork it
+- No clipboard yanking of hunks
+- No config-based keybind *replacement* — only aliases
 
 If any of these would genuinely make your life better, open an issue.
 
@@ -131,7 +252,12 @@ If any of these would genuinely make your life better, open an issue.
 
 ## credits
 
-Built with 💛 using [Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lip Gloss](https://github.com/charmbracelet/lipgloss) by [Charm](https://charm.sh/). Diff parsing by [sourcegraph/go-diff](https://github.com/sourcegraph/go-diff).
+Built with 💛 using:
+- [Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lip Gloss](https://github.com/charmbracelet/lipgloss) by [Charm](https://charm.sh/)
+- [Chroma](https://github.com/alecthomas/chroma) for syntax highlighting
+- [sourcegraph/go-diff](https://github.com/sourcegraph/go-diff) for unified diff parsing
+- [sergi/go-diff](https://github.com/sergi/go-diff) for word-level intra-line diffing
+- [BurntSushi/toml](https://github.com/BurntSushi/toml) for config parsing
 
 ## license
 
