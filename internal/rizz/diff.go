@@ -11,15 +11,16 @@ import (
 )
 
 type FileDiff struct {
-	Path     string
-	OldPath  string
-	IsNew    bool
-	IsDelete bool
-	IsBinary bool
-	Added    int
-	Removed  int
-	Hunks    []Hunk
-	Hash     string // sha256 of diff content, used to invalidate "viewed" mark when file changes
+	Path       string
+	OldPath    string
+	IsNew      bool
+	IsDelete   bool
+	IsBinary   bool
+	IsUntracked bool
+	Added      int
+	Removed    int
+	Hunks      []Hunk
+	Hash       string // sha256 of diff content, used to invalidate "viewed" mark when file changes
 
 	// Full file contents for syntax highlighting. Populated by LoadFileSources.
 	NewContent []byte

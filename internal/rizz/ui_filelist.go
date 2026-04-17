@@ -114,10 +114,17 @@ func renderFileList(files []FileDiff, cursor int, state *State, width, height in
 
 		icon := fileIcon(f.Path)
 
+		var tag string
+		var tagLen int
+		if f.IsUntracked {
+			tag = " " + styleUntrackedTag.Render("untracked")
+			tagLen = len(" untracked")
+		}
+
 		// 2 cells for mark + 1 space + 2 cells for icon + 1 space = 6 cells fixed
-		// plus trailing space + counts
+		// plus trailing space + counts + optional untracked tag
 		countLen := len(fmt.Sprintf("+%d -%d ", f.Added, f.Removed))
-		path := truncate(f.Path, width-countLen-7)
+		path := truncate(f.Path, width-countLen-tagLen-7)
 		pathStyle := styleFilePath
 		if viewed {
 			pathStyle = pathStyle.Foreground(colorMuted)
@@ -130,7 +137,7 @@ func renderFileList(files []FileDiff, cursor int, state *State, width, height in
 			}
 		}
 
-		lines = append(lines, fmt.Sprintf("%s %s %s %s", mark, icon, pathStyle.Render(path), counts))
+		lines = append(lines, fmt.Sprintf("%s %s %s%s %s", mark, icon, pathStyle.Render(path), tag, counts))
 	}
 
 	return strings.Join(lines, "\n")

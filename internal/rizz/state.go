@@ -12,7 +12,20 @@ type State struct {
 	Viewed map[string]string `json:"viewed"` // file path -> diff hash when marked viewed
 }
 
+// stateFilePath resolves the per-worktree git dir via `git rev-parse --git-dir`
+// so state is stored correctly in worktrees (where .git is a file, not a dir).
 func stateFilePath(repoRoot string) string {
+	out, err := runGit("rev-parse", "--git-dir")
+	if err == nil {
+		gitDir := string(out)
+		if n := len(gitDir); n > 0 && gitDir[n-1] == '\n' {
+			gitDir = gitDir[:n-1]
+		}
+		if !filepath.IsAbs(gitDir) {
+			gitDir = filepath.Join(repoRoot, gitDir)
+		}
+		return filepath.Join(gitDir, "rizz-state.json")
+	}
 	return filepath.Join(repoRoot, ".git", "rizz-state.json")
 }
 

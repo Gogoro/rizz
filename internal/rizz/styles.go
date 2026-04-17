@@ -43,6 +43,7 @@ var (
 	styleCountAdd         = lipgloss.NewStyle().Foreground(colorAdd).Bold(true)
 	styleCountDel         = lipgloss.NewStyle().Foreground(colorDel).Bold(true)
 	styleViewedMark       = lipgloss.NewStyle().Foreground(colorDiamond).Bold(true)
+	styleUntrackedTag     = lipgloss.NewStyle().Foreground(colorMuted).Italic(true)
 	styleStatusBar        = lipgloss.NewStyle().Foreground(colorGoldSoft).Background(colorStatus).Padding(0, 1)
 	styleStatusAccent     = lipgloss.NewStyle().Foreground(colorGold).Background(colorStatus).Bold(true)
 	styleHeaderBar        = lipgloss.NewStyle().Foreground(colorGold).Background(colorHeader).Bold(true).Padding(0, 1)

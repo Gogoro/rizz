@@ -82,6 +82,28 @@ func Main() {
 		os.Exit(1)
 	}
 
+	// Only include untracked files for the default "uncommitted vs HEAD" view.
+	// --staged and --base X are explicit requests that shouldn't implicitly pull in untracked files.
+	if !*staged && *base == "" {
+		untracked, err := ListUntracked(root)
+		if err == nil {
+			for _, path := range untracked {
+				raw, err := DiffUntracked(root, path)
+				if err != nil || len(raw) == 0 {
+					continue
+				}
+				parsed, err := ParseDiff(raw)
+				if err != nil {
+					continue
+				}
+				for i := range parsed {
+					parsed[i].IsUntracked = true
+				}
+				files = append(files, parsed...)
+			}
+		}
+	}
+
 	if len(files) == 0 {
 		fmt.Println(renderNoDiff())
 		return
