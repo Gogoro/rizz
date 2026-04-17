@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -12,6 +13,14 @@ func renderDiff(file *FileDiff, width int) string {
 	}
 
 	ensureHighlighted(file)
+
+	gw := computeGutterWidth(file)
+	gutterSize := 2*gw + 5 // " OLD NEW │ "
+	// drop the gutter entirely if it'd eat too much space in a narrow pane
+	if gutterSize > width/3 {
+		gutterSize = 0
+	}
+	contentWidth := width - gutterSize
 
 	var b strings.Builder
 
@@ -32,30 +41,36 @@ func renderDiff(file *FileDiff, width int) string {
 		i := 0
 		for i < len(h.Lines) {
 			line := h.Lines[i]
-			// Detect a simple paired change: one '-' immediately followed by one '+',
-			// with no other '-'/'+' around them in a larger group.
 			if line.Kind == '-' && i+1 < len(h.Lines) && h.Lines[i+1].Kind == '+' &&
 				isIsolatedPair(h.Lines, i) {
-				oldText := line.Text
-				newText := h.Lines[i+1].Text
-				oldSegs, newSegs := computeWordDiff(oldText, newText)
-				b.WriteString(renderDelWithIntra(oldSegs, width))
+				nextLine := h.Lines[i+1]
+				oldSegs, newSegs := computeWordDiff(line.Text, nextLine.Text)
+				if gutterSize > 0 {
+					b.WriteString(renderGutter(line.OldLineNum, 0, gw))
+				}
+				b.WriteString(renderDelWithIntra(oldSegs, contentWidth))
 				b.WriteString("\n")
-				b.WriteString(renderAddWithIntra(newSegs, width))
+				if gutterSize > 0 {
+					b.WriteString(renderGutter(0, nextLine.NewLineNum, gw))
+				}
+				b.WriteString(renderAddWithIntra(newSegs, contentWidth))
 				b.WriteString("\n")
 				i += 2
 				continue
 			}
 
+			if gutterSize > 0 {
+				b.WriteString(renderGutter(line.OldLineNum, line.NewLineNum, gw))
+			}
 			content := sourceLineFor(line, file.highlightedNew, file.highlightedOld)
 			prefix := string(line.Kind)
 			switch line.Kind {
 			case '+':
 				b.WriteString(styleAddPrefix.Render(prefix))
-				b.WriteString(styleAddBg.Width(width - 1).Render(content))
+				b.WriteString(styleAddBg.Width(contentWidth - 1).Render(content))
 			case '-':
 				b.WriteString(styleDelPrefix.Render(prefix))
-				b.WriteString(styleDelBg.Width(width - 1).Render(content))
+				b.WriteString(styleDelBg.Width(contentWidth - 1).Render(content))
 			default:
 				b.WriteString(styleCtxLine.Render(prefix + content))
 			}
@@ -65,6 +80,43 @@ func renderDiff(file *FileDiff, width int) string {
 		b.WriteString("\n")
 	}
 	return b.String()
+}
+
+func computeGutterWidth(file *FileDiff) int {
+	max := 1
+	for _, h := range file.Hunks {
+		for _, line := range h.Lines {
+			if line.OldLineNum > max {
+				max = line.OldLineNum
+			}
+			if line.NewLineNum > max {
+				max = line.NewLineNum
+			}
+		}
+	}
+	width := 0
+	for max > 0 {
+		max /= 10
+		width++
+	}
+	if width < 2 {
+		width = 2
+	}
+	return width
+}
+
+var styleGutter = lipgloss.NewStyle().Foreground(colorMuted)
+
+func renderGutter(oldN, newN, gw int) string {
+	left := strings.Repeat(" ", gw)
+	right := strings.Repeat(" ", gw)
+	if oldN > 0 {
+		left = fmt.Sprintf("%*d", gw, oldN)
+	}
+	if newN > 0 {
+		right = fmt.Sprintf("%*d", gw, newN)
+	}
+	return styleGutter.Render(" " + left + " " + right + " │ ")
 }
 
 // isIsolatedPair reports whether the - line at position i is part of a 1:1
