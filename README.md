@@ -107,6 +107,8 @@ Powered by [Chroma](https://github.com/alecthomas/chroma) — ~200 languages det
 
 For isolated `-` / `+` line pairs, rizz highlights the exact changed words with a brighter background. Small renames, tweaks, and typos pop immediately.
 
+<p align="center"><img src="assets/screenshots/word-diff.png" alt="word-level diff highlighting" width="860"/></p>
+
 ### line numbers
 
 GitHub-style gutter: old line number on the left, new line number on the right, muted so they don't dominate.
@@ -114,6 +116,8 @@ GitHub-style gutter: old line number on the left, new line number on the right, 
 ### file filter
 
 Press `/`, start typing, file list narrows in real time to path substring matches. `esc` clears. Handy when 47 files changed and you only want to review the Go ones.
+
+<p align="center"><img src="assets/screenshots/filter.png" alt="file filter" width="860"/></p>
 
 ### commit message suggestions
 
