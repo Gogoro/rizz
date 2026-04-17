@@ -69,6 +69,20 @@ func (m *model) diffPaneSize() (int, int) {
 	return m.width - m.listWidth() - 1, m.height - statusHeight - headerHeight
 }
 
+// nextUnviewed walks from the current cursor forward, wrapping once,
+// and returns the index of the next unviewed file.
+func (m *model) nextUnviewed() (int, bool) {
+	n := len(m.files)
+	for step := 1; step <= n; step++ {
+		idx := (m.cursor + step) % n
+		f := m.files[idx]
+		if !m.state.IsViewed(f.Path, f.Hash) {
+			return idx, true
+		}
+	}
+	return 0, false
+}
+
 func (m *model) refreshDiff() {
 	if len(m.files) == 0 {
 		return
@@ -138,6 +152,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "p", "shift+tab":
 			if m.cursor > 0 {
 				m.cursor--
+				m.refreshDiff()
+			}
+			return m, nil
+		case "U":
+			if idx, ok := m.nextUnviewed(); ok {
+				m.cursor = idx
 				m.refreshDiff()
 			}
 			return m, nil
