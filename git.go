@@ -32,9 +32,13 @@ func RepoRoot() (string, error) {
 }
 
 // RunDiff returns raw git diff output.
-// If base is empty, diffs uncommitted changes against HEAD.
-// Otherwise, diffs current branch against base using merge-base (triple-dot).
-func RunDiff(base string) ([]byte, error) {
+// If staged, diffs the index against HEAD.
+// Else if base is empty, diffs uncommitted changes against HEAD.
+// Else diffs current branch against base using merge-base (triple-dot).
+func RunDiff(base string, staged bool) ([]byte, error) {
+	if staged {
+		return runGit("diff", "--cached")
+	}
 	if base == "" {
 		return runGit("diff", "HEAD")
 	}

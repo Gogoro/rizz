@@ -8,7 +8,19 @@ import (
 
 func main() {
 	base := flag.String("base", "", "compare current branch vs this ref (e.g. main). default: uncommitted changes vs HEAD")
+	staged := flag.Bool("staged", false, "review only staged changes (git diff --cached)")
+	theme := flag.String("theme", "", "chroma syntax theme (e.g. monokai, dracula, nord). use 'list' to see all")
 	flag.Parse()
+
+	if *theme == "list" {
+		for _, name := range AvailableThemes() {
+			fmt.Println(name)
+		}
+		return
+	}
+	if *theme != "" {
+		SetSyntaxTheme(*theme)
+	}
 
 	if !IsGitRepo() {
 		fmt.Fprintln(os.Stderr, "rizz: not inside a git repository")
@@ -21,7 +33,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	raw, err := RunDiff(*base)
+	raw, err := RunDiff(*base, *staged)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "rizz: git diff failed:", err)
 		os.Exit(1)
@@ -38,7 +50,7 @@ func main() {
 		return
 	}
 
-	files = LoadFileSources(files, *base, root)
+	files = LoadFileSources(files, *base, *staged, root)
 
 	state, err := LoadState(root)
 	if err != nil {

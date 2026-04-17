@@ -18,15 +18,31 @@ const (
 	ansiFgReset = "\x1b[39m"
 )
 
-var chromaStyle = pickChromaStyle()
+var chromaStyle = pickChromaStyle("")
 
-func pickChromaStyle() *chroma.Style {
-	for _, name := range []string{"catppuccin-mocha", "monokai", "dracula", "github-dark"} {
+// pickChromaStyle returns the requested style if available, otherwise walks
+// through a list of preferred fallbacks before landing on chroma's default.
+func pickChromaStyle(preferred string) *chroma.Style {
+	candidates := []string{preferred, "catppuccin-mocha", "monokai", "dracula", "github-dark"}
+	for _, name := range candidates {
+		if name == "" {
+			continue
+		}
 		if s := styles.Get(name); s != nil && s.Name == name {
 			return s
 		}
 	}
 	return styles.Fallback
+}
+
+// SetSyntaxTheme overrides the syntax highlighting theme at runtime.
+func SetSyntaxTheme(name string) {
+	chromaStyle = pickChromaStyle(name)
+}
+
+// AvailableThemes lists all chroma style names.
+func AvailableThemes() []string {
+	return styles.Names()
 }
 
 // highlightLines returns ANSI-colored per-line strings for content.

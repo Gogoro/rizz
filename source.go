@@ -11,7 +11,11 @@ type refPair struct {
 	newRef string // ref for new-side content; empty = working tree
 }
 
-func resolveRefs(base string) (refPair, error) {
+func resolveRefs(base string, staged bool) (refPair, error) {
+	if staged {
+		// old = HEAD, new = index. ":0" addresses the staging area.
+		return refPair{oldRef: "HEAD", newRef: ":0"}, nil
+	}
 	if base == "" {
 		return refPair{oldRef: "HEAD", newRef: ""}, nil
 	}
@@ -26,7 +30,12 @@ func readAtRef(ref, path string) []byte {
 	if path == "" || path == "/dev/null" {
 		return nil
 	}
-	data, err := runGit("show", ref+":"+path)
+	// ":0" by itself addresses the index; git show :path is the canonical form.
+	spec := ref + ":" + path
+	if ref == ":0" {
+		spec = ":" + path
+	}
+	data, err := runGit("show", spec)
 	if err != nil {
 		return nil
 	}
@@ -43,8 +52,8 @@ func readWorkingTree(repoRoot, path string) []byte {
 
 // LoadFileSources populates NewContent and OldContent on each file.
 // Failures are silent — rendering falls back to the raw diff text.
-func LoadFileSources(files []FileDiff, base, repoRoot string) []FileDiff {
-	refs, err := resolveRefs(base)
+func LoadFileSources(files []FileDiff, base string, staged bool, repoRoot string) []FileDiff {
+	refs, err := resolveRefs(base, staged)
 	if err != nil {
 		return files
 	}
