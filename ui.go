@@ -43,6 +43,9 @@ type model struct {
 	cmdBuffer   string // current command text
 	cmdError    string // feedback message shown after a command runs
 	showCommit  bool   // commit message suggestions overlay
+
+	rizzBuffer      string // buffers recent r/i/z keystrokes for the easter egg
+	confettiFrames  int    // >0 while the confetti overlay is animating
 }
 
 func Run(files []FileDiff, state *State) error {
@@ -202,6 +205,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.refreshDiff()
 		return m, nil
 
+	case confettiTickMsg:
+		if m.confettiFrames > 0 {
+			m.confettiFrames--
+		}
+		if m.confettiFrames > 0 {
+			return m, confettiTick()
+		}
+		return m, nil
+
 	case tea.MouseMsg:
 		return m.handleMouse(msg)
 
@@ -244,6 +256,24 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// clear any lingering command feedback on the next real key press
 		m.cmdError = ""
+
+		// r-i-z-z easter egg detector
+		if len(key) == 1 {
+			lower := strings.ToLower(key)
+			if lower == "r" || lower == "i" || lower == "z" {
+				m.rizzBuffer += lower
+				if len(m.rizzBuffer) > 4 {
+					m.rizzBuffer = m.rizzBuffer[len(m.rizzBuffer)-4:]
+				}
+				if m.rizzBuffer == "rizz" {
+					m.confettiFrames = confettiTotalFrames
+					m.rizzBuffer = ""
+					return m, confettiTick()
+				}
+			} else {
+				m.rizzBuffer = ""
+			}
+		}
 
 		// keys that work regardless of which pane has focus
 		switch key {
@@ -364,6 +394,9 @@ func (m *model) View() string {
 	}
 	if m.showCommit {
 		return renderCommitMessages(suggestCommitMessages(m.files), m.width, m.height)
+	}
+	if m.confettiFrames > 0 {
+		return renderConfetti(m.width, m.height, confettiTotalFrames-m.confettiFrames)
 	}
 
 	listHeight := m.height - statusHeight - headerHeight
