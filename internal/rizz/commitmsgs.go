@@ -1,4 +1,4 @@
-package main
+package rizz
 
 import (
 	"path/filepath"

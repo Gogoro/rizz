@@ -1,4 +1,4 @@
-package main
+package rizz
 
 import "github.com/sergi/go-diff/diffmatchpatch"
 

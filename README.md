@@ -14,10 +14,6 @@
   <img src="https://img.shields.io/badge/vibes-immaculate-yellow?style=flat-square" alt="vibes: immaculate"/>
 </p>
 
-<p align="center">
-  <img src="assets/screenshots/hero.png" alt="rizz in action" width="880"/>
-</p>
-
 ---
 
 ## diff so clean, even prod approved it
@@ -90,8 +86,6 @@ rizz --no-splash
 
 Sidebar on the left with every changed file. Big diff on the right. Focus flips between them: `enter` to dive into the diff, `esc` to jump back to the file list. Muscle memory stays consistent — `j/k` always means "move" in whichever pane has focus.
 
-<p align="center"><img src="assets/screenshots/list-mode.png" alt="list mode" width="860"/></p>
-
 ### viewed tracking that doesn't lie
 
 Mark files with `v` (or space), track with the 💎 diamond marker. State lives in `.git/rizz-state.json` per repo — no global mess.
@@ -104,13 +98,9 @@ Hit `U` to jump to the next unviewed file.
 
 Powered by [Chroma](https://github.com/alecthomas/chroma) — ~200 languages detected by filename. Default theme is `catppuccin-mocha`. Swap with `--theme <name>` or set `theme = "dracula"` in the config file.
 
-<p align="center"><img src="assets/screenshots/diff-mode.png" alt="diff mode with syntax highlighting" width="860"/></p>
-
 ### word-level diff
 
 For isolated `-` / `+` line pairs, rizz highlights the exact changed words with a brighter background. Small renames, tweaks, and typos pop immediately.
-
-<p align="center"><img src="assets/screenshots/word-diff.png" alt="word-level diff highlighting" width="860"/></p>
 
 ### line numbers
 
@@ -120,19 +110,13 @@ GitHub-style gutter: old line number on the left, new line number on the right, 
 
 Press `/`, start typing, file list narrows in real time to path substring matches. `esc` clears. Handy when 47 files changed and you only want to review the Go ones.
 
-<p align="center"><img src="assets/screenshots/filter.png" alt="file filter" width="860"/></p>
-
 ### commit message suggestions
 
 Press `m` for a vibey commit message generator that reads your file types and operations and spits out suggestions in the logo's style (`feat: add rizz`, `fix: remove cringe code`, `style: drip check passed`, etc.).
 
-<p align="center"><img src="assets/screenshots/commit-msgs.png" alt="commit message suggestions" width="860"/></p>
-
 ### help overlay
 
 `?` anywhere — modal popup with every keybinding grouped by mode.
-
-<p align="center"><img src="assets/screenshots/help.png" alt="help overlay" width="860"/></p>
 
 ### vim-style commands
 
@@ -142,8 +126,6 @@ Press `:` for a command prompt. `:q`, `:quit`, `:help`, `:a`, `:r` all work. `:w
 
 Type `r-i-z-z` anywhere. You'll see.
 
-<p align="center"><img src="assets/screenshots/confetti.png" alt="the easter egg" width="860"/></p>
-
 ### mouse support
 
 Click a file to open it. Scroll wheel navigates the file list in the sidebar and scrolls the diff in the main pane.
@@ -151,8 +133,6 @@ Click a file to open it. Scroll wheel navigates the file list in the sidebar and
 ### boot splash
 
 A little ⛓ RIZZ ⛓ flex on launch. Press any key to skip, or run with `--no-splash`.
-
-<p align="center"><img src="assets/screenshots/splash.png" alt="boot splash" width="860"/></p>
 
 ### file type flex
 
