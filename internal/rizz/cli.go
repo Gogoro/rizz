@@ -6,6 +6,9 @@ import (
 	"os"
 )
 
+// Version is set at build time via -ldflags "-X github.com/Gogoro/rizz/internal/rizz.Version=..."
+var Version = "dev"
+
 // Main is the CLI entry point. It parses flags, loads config, discovers the
 // current git diff, and hands everything off to the TUI.
 func Main() {
@@ -13,7 +16,13 @@ func Main() {
 	staged := flag.Bool("staged", false, "review only staged changes (git diff --cached)")
 	theme := flag.String("theme", "", "chroma syntax theme (e.g. monokai, dracula, nord). use 'list' to see all")
 	noSplash := flag.Bool("no-splash", false, "skip the boot splash animation")
+	showVersion := flag.Bool("version", false, "print rizz version and exit")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println("rizz", Version)
+		return
+	}
 
 	cfg, err := LoadConfig()
 	if err != nil {

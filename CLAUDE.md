@@ -42,6 +42,12 @@ If VHS isn't installed: `brew install vhs`. If it's installed but not on `$PATH`
 - No comments unless the WHY is non-obvious (rarely; let good names carry it)
 - No trailing summary docstrings or feature explanation in comments — that belongs in the README or commit message
 
+## releasing
+
+- `./deploy.sh patch|minor|major|x.y.z` — runs vet/build/test, tags, pushes. GitHub Actions picks up the tag and runs GoReleaser (`.github/workflows/release.yml` → `.goreleaser.yaml`).
+- Binaries land on the Releases page. `install.sh` in the repo root downloads the matching asset for the user's OS/arch.
+- Version is wired via ldflag into `internal/rizz.Version` (read by `--version`).
+
 ## commit messages
 
 Short, lowercase, no conventional-commit prefix. Match existing style: `add --staged flag`, `fix sidebar width scaling`, `bump chroma`.

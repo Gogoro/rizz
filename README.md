@@ -21,13 +21,13 @@
 
 ## diff so clean, even prod approved it
 
-`rizz` is a terminal TUI that gives you GitHub's "Files Changed" experience for your own uncommitted changes. Scroll the diff, check files off as you review them, ship with confidence — no PR required.
+`rizz` is a terminal TUI that gives you GitHub's "Files Changed" experience for your own uncommitted changes locally. Scroll the diff, check files off as you review them, ship with confidence — no PR required.
 
 Built for the solo dev, the vibe-coder, the one who ships straight to main and still wants to look over 14 AI-generated files before `git push`.
 
 ## why tho
 
-You're deep in the zone. Your AI bestie just wrote half a feature. You need to actually *read the diff* before committing. Your options:
+You're deep in the zone. Your AI bestie just wrote half a feature. You need to actually _read the diff_ before committing. Your options:
 
 - ❌ Open a PR, review yourself, merge, pull main, delete branch. That's **five steps** for solo work.
 - ❌ Blast through `git diff` in a dumb pager and hope you don't miss a file.
@@ -36,20 +36,30 @@ You're deep in the zone. Your AI bestie just wrote half a feature. You need to a
 
 ## install
 
+**oneliner (macOS / Linux)** — grabs the right prebuilt binary for your OS and drops it in `~/.local/bin`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Gogoro/rizz/main/install.sh | sh
+```
+
+**Go devs:**
+
 ```bash
 go install github.com/Gogoro/rizz@latest
 ```
 
-Or from source:
+**Manual:** grab a binary from [Releases](https://github.com/Gogoro/rizz/releases) and drop it on your `$PATH`.
+
+**From source:**
 
 ```bash
 git clone https://github.com/Gogoro/rizz.git
 cd rizz
 go build
-mv rizz /usr/local/bin/   # or wherever your PATH points
+mv rizz /usr/local/bin/
 ```
 
-Requires Go 1.22+.
+Requires Go 1.22+ for source / `go install`.
 
 ## try it
 
@@ -147,15 +157,15 @@ A little ⛓ RIZZ ⛓ flex on launch. Press any key to skip, or run with `--no-s
 
 `rizz` drops an emoji next to each file so you can skim what's changing at a glance:
 
-| ext | icon | ext | icon | ext | icon |
-|---|---|---|---|---|---|
-| `.go` | 🐹 | `.ts` | 🟦 | `.js` | 🟨 |
-| `.py` | 🐍 | `.rs` | 🦀 | `.rb` | ♦️ |
-| `.css` `.scss` | 🎨 | `.html` | 🌐 | `.md` | 📝 |
-| `.json` | 📦 | `.yaml` | 📋 | `.toml` `.ini` | ⚙️ |
-| `.sh` `.bash` | 🐚 | `.sql` | 🗄 | `Dockerfile` | 🐳 |
-| `Makefile` | 🔨 | `*_test.go` | 🧪 | images | 🖼 |
-| `.env` | 🔐 | `.lock` | 🔒 | anything else | 📄 |
+| ext            | icon | ext         | icon | ext            | icon |
+| -------------- | ---- | ----------- | ---- | -------------- | ---- |
+| `.go`          | 🐹   | `.ts`       | 🟦   | `.js`          | 🟨   |
+| `.py`          | 🐍   | `.rs`       | 🦀   | `.rb`          | ♦️   |
+| `.css` `.scss` | 🎨   | `.html`     | 🌐   | `.md`          | 📝   |
+| `.json`        | 📦   | `.yaml`     | 📋   | `.toml` `.ini` | ⚙️   |
+| `.sh` `.bash`  | 🐚   | `.sql`      | 🗄   | `Dockerfile`   | 🐳   |
+| `Makefile`     | 🔨   | `*_test.go` | 🧪   | images         | 🖼   |
+| `.env`         | 🔐   | `.lock`     | 🔒   | anything else  | 📄   |
 
 ## keybindings
 
@@ -163,37 +173,37 @@ Two focus modes: **file list** on the left, **diff view** on the right. `enter` 
 
 **list mode**
 
-| key | action |
-|---|---|
+| key                   | action             |
+| --------------------- | ------------------ |
 | `j` · `k` · `↑` · `↓` | move between files |
-| `g` · `G` | first · last file |
-| `enter` · `l` · `→` | open diff view |
+| `g` · `G`             | first · last file  |
+| `enter` · `l` · `→`   | open diff view     |
 
 **diff mode**
 
-| key | action |
-|---|---|
-| `j` · `k` · `↑` · `↓` | scroll the diff |
-| `ctrl+d` · `ctrl+u` · `d` · `u` | half-page down · up |
-| `ctrl+f` · `ctrl+b` · `pgdn` · `pgup` | full page down · up |
-| `g` · `G` | top · bottom of diff |
-| `esc` · `h` · `←` | back to list |
+| key                                   | action               |
+| ------------------------------------- | -------------------- |
+| `j` · `k` · `↑` · `↓`                 | scroll the diff      |
+| `ctrl+d` · `ctrl+u` · `d` · `u`       | half-page down · up  |
+| `ctrl+f` · `ctrl+b` · `pgdn` · `pgup` | full page down · up  |
+| `g` · `G`                             | top · bottom of diff |
+| `esc` · `h` · `←`                     | back to list         |
 
 **works in both modes**
 
-| key | action |
-|---|---|
-| `n` · `tab` | next file |
-| `p` · `shift+tab` | previous file |
-| `U` | jump to next unviewed |
-| `v` · `space` | toggle viewed 💎 |
-| `a` | mark all viewed |
-| `r` | reset all |
-| `/` | filter files (esc clears) |
-| `m` | commit message suggestions |
-| `:` | vim-style command |
-| `?` | help overlay |
-| `q` · `ctrl+c` | quit |
+| key               | action                     |
+| ----------------- | -------------------------- |
+| `n` · `tab`       | next file                  |
+| `p` · `shift+tab` | previous file              |
+| `U`               | jump to next unviewed      |
+| `v` · `space`     | toggle viewed 💎           |
+| `a`               | mark all viewed            |
+| `r`               | reset all                  |
+| `/`               | filter files (esc clears)  |
+| `m`               | commit message suggestions |
+| `:`               | vim-style command          |
+| `?`               | help overlay               |
+| `q` · `ctrl+c`    | quit                       |
 
 Mouse: click a file in the sidebar to open it; scroll wheel navigates the sidebar or scrolls the diff depending on where you hover.
 
@@ -221,12 +231,12 @@ Run `rizz --theme list` to see all available chroma themes.
 
 ## cli flags
 
-| flag | purpose |
-|---|---|
-| `--base <ref>` | compare current branch vs a ref (uses merge-base) |
-| `--staged` | review only staged changes |
-| `--theme <name>` | override syntax theme (use `list` to print all) |
-| `--no-splash` | skip the boot animation |
+| flag             | purpose                                           |
+| ---------------- | ------------------------------------------------- |
+| `--base <ref>`   | compare current branch vs a ref (uses merge-base) |
+| `--staged`       | review only staged changes                        |
+| `--theme <name>` | override syntax theme (use `list` to print all)   |
+| `--no-splash`    | skip the boot animation                           |
 
 ## what's NOT here (yet)
 
@@ -239,6 +249,7 @@ If any of these would genuinely make your life better, open an issue.
 ## credits
 
 Built with 💛 using:
+
 - [Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lip Gloss](https://github.com/charmbracelet/lipgloss) by [Charm](https://charm.sh/)
 - [Chroma](https://github.com/alecthomas/chroma) for syntax highlighting
 - [sourcegraph/go-diff](https://github.com/sourcegraph/go-diff) for unified diff parsing
