@@ -135,8 +135,6 @@ Press `:` for a command prompt. `:q`, `:quit`, `:help`, `:a`, `:r` all work. `:w
 
 Type `r-i-z-z` anywhere. You'll see.
 
-<p align="center"><img src="assets/screenshots/confetti.png" alt="the easter egg" width="860"/></p>
-
 ### mouse support
 
 Click a file to open it. Scroll wheel navigates the file list in the sidebar and scrolls the diff in the main pane.
