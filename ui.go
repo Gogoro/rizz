@@ -27,22 +27,46 @@ const (
 )
 
 type model struct {
-	files    []FileDiff
-	cursor   int
-	focus    focusMode
-	state    *State
-	viewport viewport.Model
-	width    int
-	height   int
-	ready    bool
-	showHelp bool
+	files       []FileDiff
+	visible     []int // indices into files after applying filter
+	cursor      int   // index into visible
+	focus       focusMode
+	state       *State
+	viewport    viewport.Model
+	width       int
+	height      int
+	ready       bool
+	showHelp    bool
+	filter      string // current file path filter substring (case-insensitive)
+	filterInput bool   // true while the user is actively typing the filter
 }
 
 func Run(files []FileDiff, state *State) error {
 	m := &model{files: files, state: state}
+	m.recomputeVisible()
 	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
 	_, err := p.Run()
 	return err
+}
+
+func (m *model) recomputeVisible() {
+	m.visible = m.visible[:0]
+	needle := strings.ToLower(m.filter)
+	for i, f := range m.files {
+		if needle == "" || strings.Contains(strings.ToLower(f.Path), needle) {
+			m.visible = append(m.visible, i)
+		}
+	}
+	if m.cursor >= len(m.visible) {
+		m.cursor = 0
+	}
+}
+
+func (m *model) currentFile() *FileDiff {
+	if len(m.visible) == 0 || m.cursor < 0 || m.cursor >= len(m.visible) {
+		return nil
+	}
+	return &m.files[m.visible[m.cursor]]
 }
 
 func (m *model) Init() tea.Cmd { return nil }
@@ -69,13 +93,13 @@ func (m *model) diffPaneSize() (int, int) {
 	return m.width - m.listWidth() - 1, m.height - statusHeight - headerHeight
 }
 
-// nextUnviewed walks from the current cursor forward, wrapping once,
+// nextUnviewed walks the visible file list forward from the cursor, wrapping once,
 // and returns the index of the next unviewed file.
 func (m *model) nextUnviewed() (int, bool) {
-	n := len(m.files)
+	n := len(m.visible)
 	for step := 1; step <= n; step++ {
 		idx := (m.cursor + step) % n
-		f := m.files[idx]
+		f := m.files[m.visible[idx]]
 		if !m.state.IsViewed(f.Path, f.Hash) {
 			return idx, true
 		}
@@ -84,11 +108,13 @@ func (m *model) nextUnviewed() (int, bool) {
 }
 
 func (m *model) refreshDiff() {
-	if len(m.files) == 0 {
+	f := m.currentFile()
+	if f == nil {
+		m.viewport.SetContent("")
 		return
 	}
 	w, _ := m.diffPaneSize()
-	m.viewport.SetContent(renderDiff(&m.files[m.cursor], w))
+	m.viewport.SetContent(renderDiff(f, w))
 	m.viewport.GotoTop()
 }
 
@@ -122,18 +148,27 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
+		// filter input mode — typing builds up the filter substring
+		if m.filterInput {
+			return m.updateFilterInput(key)
+		}
+
 		// keys that work regardless of which pane has focus
 		switch key {
 		case "?":
 			m.showHelp = true
 			return m, nil
+		case "/":
+			m.filterInput = true
+			return m, nil
 		case "q", "ctrl+c":
 			_ = m.state.Save()
 			return m, tea.Quit
 		case "v", " ":
-			f := m.files[m.cursor]
-			m.state.ToggleViewed(f.Path, f.Hash)
-			_ = m.state.Save()
+			if f := m.currentFile(); f != nil {
+				m.state.ToggleViewed(f.Path, f.Hash)
+				_ = m.state.Save()
+			}
 			return m, nil
 		case "a":
 			m.state.MarkAllViewed(m.files)
@@ -144,7 +179,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			_ = m.state.Save()
 			return m, nil
 		case "n", "tab":
-			if m.cursor < len(m.files)-1 {
+			if m.cursor < len(m.visible)-1 {
 				m.cursor++
 				m.refreshDiff()
 			}
@@ -166,7 +201,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.focus == focusList {
 			switch key {
 			case "j", "down":
-				if m.cursor < len(m.files)-1 {
+				if m.cursor < len(m.visible)-1 {
 					m.cursor++
 					m.refreshDiff()
 				}
@@ -179,10 +214,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor = 0
 				m.refreshDiff()
 			case "G", "end":
-				m.cursor = len(m.files) - 1
-				m.refreshDiff()
+				if len(m.visible) > 0 {
+					m.cursor = len(m.visible) - 1
+					m.refreshDiff()
+				}
 			case "enter", "l", "right":
-				m.focus = focusDiff
+				if m.currentFile() != nil {
+					m.focus = focusDiff
+				}
 			}
 			return m, nil
 		}
@@ -228,7 +267,26 @@ func (m *model) View() string {
 	listHeight := m.height - statusHeight - headerHeight
 	listFocused := m.focus == focusList
 	listW := m.listWidth()
-	listContent := renderFileList(m.files, m.cursor, m.state, listW-2, listHeight, listFocused)
+
+	// Carve a row off the bottom for the filter prompt when it's relevant
+	promptHeight := 0
+	if m.filterInput || m.filter != "" {
+		promptHeight = 1
+	}
+
+	visibleFiles := make([]FileDiff, 0, len(m.visible))
+	for _, idx := range m.visible {
+		visibleFiles = append(visibleFiles, m.files[idx])
+	}
+
+	listContent := renderFileList(visibleFiles, m.cursor, m.state, listW-2, listHeight-promptHeight, listFocused)
+	if len(visibleFiles) == 0 {
+		listContent = lipgloss.NewStyle().Foreground(colorMuted).Italic(true).Render("no matches")
+	}
+
+	if promptHeight > 0 {
+		listContent += "\n" + renderFilterPrompt(m.filter, m.filterInput, listW-2)
+	}
 
 	borderColor := colorBorder
 	if !listFocused {

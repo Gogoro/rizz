@@ -36,6 +36,7 @@ func renderHelp(width, height int) string {
 				{"p  shift+tab", "previous file"},
 				{"v  space", "toggle viewed 💎"},
 				{"U", "jump to next unviewed"},
+				{"/", "filter files (esc clears)"},
 				{"a", "mark all viewed"},
 				{"r", "reset all"},
 				{"?", "toggle this help"},
