@@ -53,6 +53,14 @@ func (m *model) runCmd(cmd string) (tea.Model, tea.Cmd) {
 	case "r", "reset":
 		m.state.UnmarkAll()
 		_ = m.state.Save()
+	case "side", "sidebyside":
+		if m.diffMode != diffModeSide {
+			m.toggleDiffMode()
+		}
+	case "inline":
+		if m.diffMode != diffModeInline {
+			m.toggleDiffMode()
+		}
 	default:
 		m.cmdError = "unknown command: " + cmd
 	}

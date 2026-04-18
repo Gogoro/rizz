@@ -48,10 +48,12 @@ type model struct {
 	confettiFrames int    // >0 while the confetti overlay is animating
 	splashFrames   int    // >0 while the boot splash is visible
 	keyRemap       map[string]string
+	diffMode       diffViewMode
 }
 
-func Run(files []FileDiff, state *State, showSplash bool, keyRemap map[string]string) error {
+func Run(files []FileDiff, state *State, showSplash bool, keyRemap map[string]string, forceInline bool) error {
 	m := &model{files: files, state: state, keyRemap: keyRemap}
+	m.diffMode = resolveDiffMode(state.DiffMode, forceInline)
 	m.recomputeVisible()
 	if showSplash {
 		m.splashFrames = splashTotalFrames
@@ -196,8 +198,30 @@ func (m *model) refreshDiff() {
 		return
 	}
 	w, _ := m.diffPaneSize()
-	m.viewport.SetContent(renderDiff(f, w))
+	m.viewport.SetContent(renderDiff(f, w, m.diffMode))
 	m.viewport.GotoTop()
+}
+
+func resolveDiffMode(saved string, forceInline bool) diffViewMode {
+	if forceInline {
+		return diffModeInline
+	}
+	if saved == "inline" {
+		return diffModeInline
+	}
+	return diffModeSide
+}
+
+func (m *model) toggleDiffMode() {
+	if m.diffMode == diffModeSide {
+		m.diffMode = diffModeInline
+		m.state.DiffMode = "inline"
+	} else {
+		m.diffMode = diffModeSide
+		m.state.DiffMode = "side"
+	}
+	_ = m.state.Save()
+	m.refreshDiff()
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -334,6 +358,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "r":
 			m.state.UnmarkAll()
 			_ = m.state.Save()
+			return m, nil
+		case "s":
+			m.toggleDiffMode()
 			return m, nil
 		case "n", "tab":
 			if m.cursor < len(m.visible)-1 {

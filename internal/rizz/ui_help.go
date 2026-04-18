@@ -36,6 +36,7 @@ func renderHelp(width, height int) string {
 				{"p  shift+tab", "previous file"},
 				{"v  space", "toggle viewed 💎"},
 				{"U", "jump to next unviewed"},
+				{"s", "toggle side-by-side / inline diff"},
 				{"/", "filter files (esc clears)"},
 				{":", "vim-style command (:q, :help)"},
 				{"m", "commit message suggestions"},

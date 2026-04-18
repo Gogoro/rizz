@@ -18,6 +18,7 @@ func Main() {
 	staged := flag.Bool("staged", false, "review only staged changes (git diff --cached)")
 	theme := flag.String("theme", "", "chroma syntax theme (e.g. monokai, dracula, nord). use 'list' to see all")
 	noSplash := flag.Bool("no-splash", false, "skip the boot splash animation")
+	inlineDiff := flag.Bool("inline", false, "start in inline diff mode instead of side-by-side")
 	showVersion := flag.Bool("version", false, "print rizz version and exit")
 	doUpdate := flag.Bool("update", false, "download and install the latest rizz release")
 	flag.Parse()
@@ -118,7 +119,7 @@ func Main() {
 	}
 
 	showSplash := !*noSplash && !cfg.NoSplash
-	if err := Run(files, state, showSplash, cfg.KeyRemap()); err != nil {
+	if err := Run(files, state, showSplash, cfg.KeyRemap(), *inlineDiff); err != nil {
 		fmt.Fprintln(os.Stderr, "rizz:", err)
 		os.Exit(1)
 	}

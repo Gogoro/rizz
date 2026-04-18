@@ -32,7 +32,7 @@ Screenshot "assets/screenshots/splash.png"
 Sleep 1500ms
 Screenshot "assets/screenshots/list-mode.png"
 
-# into the first file's diff
+# into the first file's diff (side-by-side is the default)
 Enter
 Sleep 800ms
 Screenshot "assets/screenshots/diff-mode.png"
@@ -44,7 +44,18 @@ Type "jjjjj"
 Sleep 300ms
 Enter
 Sleep 800ms
+Screenshot "assets/screenshots/side-by-side.png"
+Sleep 200ms
 Screenshot "assets/screenshots/word-diff.png"
+
+# toggle to inline mode for comparison
+Type "s"
+Sleep 600ms
+Screenshot "assets/screenshots/inline-mode.png"
+
+# back to side-by-side so the rest of the tape runs in the default view
+Type "s"
+Sleep 300ms
 
 # filter
 Escape

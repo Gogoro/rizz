@@ -7,13 +7,29 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func renderDiff(file *FileDiff, width int) string {
+type diffViewMode int
+
+const (
+	diffModeInline diffViewMode = iota
+	diffModeSide
+)
+
+const sideBySideMinWidth = 80
+
+func renderDiff(file *FileDiff, width int, mode diffViewMode) string {
 	if file.IsBinary {
 		return styleFileCounts.Render("binary file")
 	}
 
 	ensureHighlighted(file)
 
+	if mode == diffModeSide && width >= sideBySideMinWidth {
+		return renderDiffSideBySide(file, width)
+	}
+	return renderDiffInline(file, width)
+}
+
+func renderDiffInline(file *FileDiff, width int) string {
 	gw := computeGutterWidth(file)
 	gutterSize := 2*gw + 5 // " OLD NEW │ "
 	// drop the gutter entirely if it'd eat too much space in a narrow pane

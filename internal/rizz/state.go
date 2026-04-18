@@ -9,7 +9,8 @@ import (
 
 type State struct {
 	path   string
-	Viewed map[string]string `json:"viewed"` // file path -> diff hash when marked viewed
+	Viewed map[string]string `json:"viewed"`   // file path -> diff hash when marked viewed
+	DiffMode string          `json:"diffMode"` // "side" or "inline"; empty means default
 }
 
 // stateFilePath resolves the per-worktree git dir via `git rev-parse --git-dir`

@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/list-mode.png" alt="rizz in action" width="880"/>
+  <img src="assets/screenshots/side-by-side.png" alt="rizz in action — side-by-side diff" width="880"/>
 </p>
 
 ---
@@ -91,6 +91,9 @@ rizz --theme list        # print all available themes
 
 # skip the boot animation
 rizz --no-splash
+
+# force inline mode (default is side-by-side)
+rizz --inline
 ```
 
 ## features
@@ -106,6 +109,18 @@ Mark files with `v` (or space), track with the 💎 diamond marker. State lives 
 Each viewed mark is keyed to a hash of that file's diff content. When the diff changes (you commit, you edit, anything), the mark auto-invalidates. Same behavior as GitHub's "Viewed" checkbox on PRs.
 
 Hit `U` to jump to the next unviewed file.
+
+### side-by-side diff
+
+Default view. Old version on the left, new on the right, line numbers on both sides — same flow as GitHub's split view. Changed words pop with intra-line highlighting on paired removals/additions.
+
+<p align="center"><img src="assets/screenshots/side-by-side.png" alt="side-by-side diff view" width="860"/></p>
+
+Prefer classic unified diffs? Press `s` to toggle, run with `--inline`, or type `:inline`. Your preference sticks across runs.
+
+<p align="center"><img src="assets/screenshots/inline-mode.png" alt="inline unified diff view" width="860"/></p>
+
+Narrow terminals automatically fall back to inline so things stay readable.
 
 ### syntax highlighting
 
@@ -199,6 +214,7 @@ Two focus modes: **file list** on the left, **diff view** on the right. `enter` 
 | `v` · `space`     | toggle viewed 💎           |
 | `a`               | mark all viewed            |
 | `r`               | reset all                  |
+| `s`               | toggle side-by-side / inline |
 | `/`               | filter files (esc clears)  |
 | `m`               | commit message suggestions |
 | `:`               | vim-style command          |
@@ -237,10 +253,10 @@ Run `rizz --theme list` to see all available chroma themes.
 | `--staged`       | review only staged changes                        |
 | `--theme <name>` | override syntax theme (use `list` to print all)   |
 | `--no-splash`    | skip the boot animation                           |
+| `--inline`      | start in inline diff mode instead of side-by-side |
 
 ## what's NOT here (yet)
 
-- No side-by-side diff — unified only
 - No inline comments or annotations
 - `rizz` is strictly read-only — no staging, committing, or any git mutation
 
